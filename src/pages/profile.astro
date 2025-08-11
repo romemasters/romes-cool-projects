@@ -1,0 +1,90 @@
+---
+// src/pages/profile.astro
+
+const GITHUB_USERNAME = "romemasters";
+const GITHUB_PROFILE_URL = `https://github.com/${GITHUB_USERNAME}`;
+const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile · Code Unit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f7f8fa; margin: 0; }
+    .cf-sidebar { position: fixed; width: 250px; top: 0; left: 0; bottom: 0; background: #23263b; color: #fff; padding: 1.8rem 0 0 0; z-index: 12; border-right: 1px solid #e8e8ed; display: flex; flex-direction: column; align-items: center; }
+    .cf-side-nav { width: 100%; display: flex; flex-direction: column; margin-top: 2rem; gap: 0.3em; }
+    .cf-side-link { color: #fff; text-decoration: none; display: flex; align-items: center; font-weight: 600; font-size: 1.09em; padding: 0.7em 2.1em 0.7em 2.2em; border-radius: 10px 0 0 10px; margin-bottom: 0.3em; transition: background 0.16s, color 0.18s; gap: 1.1em; }
+    .cf-side-link.active, .cf-side-link:hover { background: #fff; color: #f38020; }
+    .cf-side-link svg { width: 1.2em; height: 1.2em; fill: currentColor; }
+    .cf-topbar { width: 100vw; background: #fff; border-bottom: 1px solid #e8e8ed; height: 58px; display: flex; align-items: center; padding-left: 250px; position: fixed; top: 0; left: 0; right: 0; z-index: 11; box-shadow: 0 1px 8px #22243a08; }
+    .cf-topbar-logo { width: 36px; height: 36px; margin-right: 1.1em; vertical-align: middle; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #f3802012; object-fit: contain; }
+    .cf-topbar-title { font-size: 1.35rem; font-weight: 800; color: #f38020; letter-spacing: 0.7px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cf-main { margin-left: 250px; padding: 80px 2vw 2vw 2vw; min-height: 100vh; max-width: 650px; }
+    .profile-card { background: #fff; border-radius: 15px; box-shadow: 0 4px 20px #22243a15; padding: 2em 2em 1.7em 2em; border: 1px solid #e8e8ed; }
+    .profile-avatar { border-radius: 50%; width: 110px; height: 110px; box-shadow: 0 4px 16px #f3802018; margin-bottom: 1.2em; }
+    .profile-username { font-size: 1.45em; font-weight: 800; color: #f38020; letter-spacing: 0.4px; }
+    .profile-link { color: #f38020; font-weight: 700; text-decoration: none; font-size: 1.08em; }
+    .profile-bio { color: #22243a; font-size: 1.11em; margin: 0.8em 0 1.1em 0; }
+    .profile-meta { color: #a0a4ab; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <nav class="cf-sidebar">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.2em;">
+      <img src={logoUrl} alt="Code Unit Logo" style="width:44px;height:44px;background:#fff;border-radius:12px;box-shadow:0 2px 8px #f3802012;">
+    </div>
+    <div class="cf-side-nav">
+      <a class="cf-side-link" href="/">
+        <svg viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 0 0-1.414 0l-7 7A1 1 0 0 0 3 11h1v6a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3h2v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-6h1a1 1 0 0 0 .707-1.707l-7-7z"></path></svg>
+        Home
+      </a>
+      <a class="cf-side-link" href="/about">
+        <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 10c-2.21 0-4.2-1.17-5.2-3 .03-2 4-3.1 5.2-3.1 1.2 0 5.17 1.1 5.2 3.1-1 1.83-3 3-5.2 3z"></path></svg>
+        About
+      </a>
+      <a class="cf-side-link active" href="/profile">
+        <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 10c-2.21 0-4.2-1.17-5.2-3 .03-2 4-3.1 5.2-3.1 1.2 0 5.17 1.1 5.2 3.1-1 1.83-3 3-5.2 3z"></path></svg>
+        Profile
+      </a>
+      <a class="cf-side-link" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.427 2.867 8.18 6.839 9.504.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.031 1.531 1.031.892 1.53 2.341 1.088 2.91.833.091-.647.349-1.087.635-1.338-2.221-.253-4.555-1.112-4.555-4.951 0-1.093.39-1.987 1.029-2.686-.103-.254-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.748-1.026 2.748-1.026.546 1.378.202 2.396.1 2.65.64.699 1.028 1.593 1.028 2.686 0 3.849-2.337 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.746 0 .267.181.578.688.48C19.135 20.197 22 16.447 22 12.021 22 6.484 17.522 2 12 2z"></path></svg>
+        GitHub
+      </a>
+    </div>
+  </nav>
+  <div class="cf-topbar">
+    <img class="cf-topbar-logo" src={logoUrl} alt="Logo" />
+    <span class="cf-topbar-title">Code Unit</span>
+  </div>
+  <main class="cf-main">
+    <div class="profile-card" id="profile-card">
+      <div style="text-align:center;">
+        <img class="profile-avatar" id="profile-avatar" src="https://github.com/romemasters.png" alt="Avatar">
+        <div class="profile-username" id="profile-username">@romemasters</div>
+        <a href={GITHUB_PROFILE_URL} class="profile-link" id="profile-link" target="_blank" rel="noopener">View on GitHub</a>
+        <div class="profile-bio" id="profile-bio"></div>
+        <div class="profile-meta" id="profile-meta"></div>
+      </div>
+    </div>
+    <script>
+      fetch("https://api.github.com/users/romemasters")
+        .then(r=>r.json())
+        .then(u=>{
+          document.getElementById("profile-avatar").src = u.avatar_url || "https://github.com/romemasters.png";
+          document.getElementById("profile-username").textContent = "@" + (u.login || "romemasters");
+          document.getElementById("profile-link").href = u.html_url || "https://github.com/romemasters";
+          document.getElementById("profile-bio").textContent = u.bio || "";
+          document.getElementById("profile-meta").textContent =
+            (u.name ? u.name+" · " : "") +
+            (u.location ? u.location+" · " : "") +
+            (u.public_repos ? u.public_repos+" public repos" : "");
+        });
+    </script>
+  </main>
+</body>
+</html>
