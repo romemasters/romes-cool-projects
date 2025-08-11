@@ -1,63 +1,49 @@
 ---
-// src/pages/index.astro
+import fs from "fs";
+import path from "path";
 
-import fs from 'fs';
-import path from 'path';
+// User/repo info for edit links and profile
+const GITHUB_USERNAME = "romemasters";
+const GITHUB_REPO = "romes-cool-projects";
+const GITHUB_BRANCH = "main";
+const GITHUB_PROFILE_URL = `https://github.com/${GITHUB_USERNAME}`;
 
-const user = "romemasters";
-const repo = "romes-cool-projects";
-const branch = "main";
-const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
-
-// 1. Recursively get all files in public/texts, keeping their relative paths
-function getFiles(dir, base = "") {
+// Get all files recursively from public/texts
+function walk(dir, prefix = "") {
   let results = [];
-  for (const file of fs.readdirSync(dir)) {
+  const list = fs.existsSync(dir) ? fs.readdirSync(dir) : [];
+  list.forEach((file) => {
     const filePath = path.join(dir, file);
-    const relPath = path.join(base, file);
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      results = results.concat(getFiles(filePath, relPath));
+    const relPath = prefix ? `${prefix}/${file}` : file;
+    if (fs.statSync(filePath).isDirectory()) {
+      results = results.concat(walk(filePath, relPath));
     } else {
-      results.push({ name: file, relPath, mtime: stat.mtimeMs, size: stat.size });
+      results.push(relPath);
     }
-  }
+  });
   return results;
 }
-const textsDir = path.resolve('public', 'texts');
-const files = fs.existsSync(textsDir) ? getFiles(textsDir) : [];
+const files = walk("public/texts");
 
-// Sort by modified time descending for recent activity
-const recentFiles = [...files].sort((a, b) => b.mtime - a.mtime).slice(0, 5);
-
-// Virtual folders: build folder tree
-function buildFolderTree(files) {
-  const tree = {};
-  for (const file of files) {
-    const parts = file.relPath.split(/[\\/]/);
-    let node = tree;
-    for (let i = 0; i < parts.length; ++i) {
-      const part = parts[i];
+// Build folder structure
+function buildTree(files) {
+  const root = {};
+  files.forEach((file) => {
+    const parts = file.split("/");
+    let node = root;
+    for (let i = 0; i < parts.length; i++) {
       if (i === parts.length - 1) {
-        if (!node.files) node.files = [];
-        node.files.push(file);
+        node[parts[i]] = null; // file
       } else {
-        if (!node.folders) node.folders = {};
-        if (!node.folders[part]) node.folders[part] = {};
-        node = node.folders[part];
+        if (!node[parts[i]]) node[parts[i]] = {};
+        node = node[parts[i]];
       }
     }
-  }
-  return tree;
+  });
+  return root;
 }
-const folderTree = buildFolderTree(files);
-
-// For user profile (static, but you could fetch dynamically if you want)
-const userInfo = {
-  username: "romemasters",
-  avatar: "https://avatars.githubusercontent.com/u/105332430?v=4",
-  profile: "https://github.com/romemasters"
-};
+const fileTree = buildTree(files);
+const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
 ---
 
 <html lang="en">
@@ -76,11 +62,28 @@ const userInfo = {
       --cf-dark: #22243a;
       --cf-sidebar: #23263b;
       --cf-card: #fff;
+      --cf-card-dark: #22243a;
       --cf-border: #e8e8ed;
       --cf-gray: #a0a4ab;
       --cf-shadow: 0 4px 20px #22243a15;
-      --cf-green: #17c964;
-      --cf-red: #e45757;
+      --cf-file-bg: #f7f8fa;
+      --cf-file-bg-dark: #23263b;
+      --cf-input-bg: #fff;
+      --cf-input-bg-dark: #23263b;
+      --cf-tag-bg: #ffe0c2;
+      --cf-tag-bg-dark: #2d2f3e;
+      --cf-tag-color: #b35a00;
+      --cf-tag-color-dark: #ffa94d;
+    }
+    [data-theme="dark"] {
+      --cf-bg: #171923;
+      --cf-card: var(--cf-card-dark);
+      --cf-file-bg: var(--cf-file-bg-dark);
+      --cf-input-bg: var(--cf-input-bg-dark);
+      --cf-border: #23263b;
+      --cf-gray: #b2b8c6;
+      --cf-tag-bg: var(--cf-tag-bg-dark);
+      --cf-tag-color: var(--cf-tag-color-dark);
     }
     body {
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -88,84 +91,336 @@ const userInfo = {
       color: var(--cf-dark);
       margin: 0;
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
-    .cf-loader { /* ... loading screen as before ... */ }
-    .cf-loader.hide { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
-    .cf-loader-logo { width: 70px; height: 70px; margin-bottom: 1.5rem; background: #fff; border-radius: 16px; box-shadow: 0 4px 12px #f3802012; display: flex; align-items: center; justify-content: center; }
-    .cf-loader-dots { display: flex; gap: 0.5em; justify-content: center; align-items: center; margin-top: 0.8em;}
-    .cf-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--cf-orange); opacity: 0.5; animation: cf-bounce 1.2s infinite;}
-    .cf-dot:nth-child(2) { animation-delay: 0.15s }
-    .cf-dot:nth-child(3) { animation-delay: 0.3s }
-    @keyframes cf-bounce { 0%, 80%, 100% { transform: scale(0.8); opacity: 0.5;} 40% { transform: scale(1.1); opacity: 1;} }
-    .cf-topbar { width: 100vw; background: var(--cf-card); border-bottom: 1px solid var(--cf-border); height: 58px; display: flex; align-items: center; padding-left: 250px; position: fixed; top: 0; left: 0; right: 0; z-index: 11; box-shadow: 0 1px 8px #22243a08;}
-    .cf-topbar-logo { width: 36px; height: 36px; margin-right: 1.1em; vertical-align: middle; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #f3802012; object-fit: contain;}
-    .cf-topbar-title { font-size: 1.35rem; font-weight: 800; color: var(--cf-orange); letter-spacing: 0.7px;}
-    .cf-sidebar { position: fixed; width: 250px; top: 0; left: 0; bottom: 0; background: var(--cf-sidebar); color: #fff; padding: 1.8rem 0 0 0; z-index: 12; border-right: 1px solid var(--cf-border); display: flex; flex-direction: column; align-items: center;}
-    .cf-side-nav { width: 100%; display: flex; flex-direction: column; margin-top: 2rem; gap: 0.3em;}
-    .cf-side-link { color: #fff; text-decoration: none; display: flex; align-items: center; font-weight: 600; font-size: 1.09em; padding: 0.7em 2.1em 0.7em 2.2em; border-radius: 10px 0 0 10px; margin-bottom: 0.3em; transition: background 0.16s, color 0.18s; gap: 1.1em;}
-    .cf-side-link.active, .cf-side-link:hover { background: #fff; color: var(--cf-orange);}
-    .cf-side-link svg { width: 1.2em; height: 1.2em; fill: currentColor;}
-    .cf-profile { margin-top: 3em; text-align: center;}
-    .cf-profile-avatar { width: 82px; height: 82px; border-radius: 50%; background: #fff; border: 3px solid var(--cf-orange); box-shadow: 0 2px 10px #f3802012;}
-    .cf-profile-name { margin-top: 0.6em; color: var(--cf-orange); font-weight: 800; font-size: 1.07em;}
-    .cf-profile-link { color: var(--cf-gray); font-size: 0.97em; text-decoration: underline;}
-    .cf-main { margin-left: 250px; padding: 80px 2.5vw 2vw 2.5vw; min-height: 100vh; max-width: 1050px;}
-    @media (max-width: 900px) { .cf-main { padding: 80px 0.6em 1em 0.6em; } }
+    .cf-topbar {
+      width: 100vw;
+      background: var(--cf-card);
+      border-bottom: 1px solid var(--cf-border);
+      height: 58px;
+      display: flex;
+      align-items: center;
+      padding-left: 250px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 11;
+      box-shadow: 0 1px 8px #22243a08;
+      transition: background 0.3s, color 0.3s;
+    }
+    .cf-topbar-logo {
+      width: 36px;
+      height: 36px;
+      margin-right: 1.1em;
+      vertical-align: middle;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #f3802012;
+      object-fit: contain;
+    }
+    .cf-topbar-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--cf-orange);
+      letter-spacing: 0.7px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cf-theme-toggle {
+      background: var(--cf-input-bg);
+      border: 1px solid var(--cf-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      color: var(--cf-dark);
+      margin-right: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 0.3em;
+      padding: 0.38em 0.9em;
+      transition: background 0.3s, color 0.3s;
+    }
+    .cf-theme-toggle svg {
+      width: 1.1em;
+      height: 1.1em;
+      fill: var(--cf-orange);
+      vertical-align: middle;
+    }
+    .cf-sidebar {
+      position: fixed;
+      width: 250px;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: var(--cf-sidebar);
+      color: #fff;
+      padding: 1.8rem 0 0 0;
+      z-index: 12;
+      border-right: 1px solid var(--cf-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .cf-side-nav {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-top: 2rem;
+      gap: 0.3em;
+    }
+    .cf-side-link {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.09em;
+      padding: 0.7em 2.1em 0.7em 2.2em;
+      border-radius: 10px 0 0 10px;
+      margin-bottom: 0.3em;
+      transition: background 0.16s, color 0.18s;
+      gap: 1.1em;
+    }
+    .cf-side-link.active, .cf-side-link:hover {
+      background: #fff;
+      color: var(--cf-orange);
+    }
+    .cf-side-link svg {
+      width: 1.2em;
+      height: 1.2em;
+      fill: currentColor;
+    }
+    .cf-main {
+      margin-left: 250px;
+      padding: 80px 2.5vw 2vw 2.5vw;
+      min-height: 100vh;
+      max-width: 950px;
+      transition: background 0.3s, color 0.3s;
+    }
+    @media (max-width: 900px) {
+      .cf-main { padding: 80px 0.6em 1em 0.6em; }
+    }
     @media (max-width: 650px) {
-      .cf-sidebar { width: 63px; min-width: 63px; padding: 0.6em 0 0 0; }
-      .cf-side-link, .cf-side-link.active, .cf-side-link:hover { padding: 1em 0.7em; border-radius: 10px; justify-content: center; font-size: 1.15em; }
-      .cf-topbar { padding-left: 63px; }
+      .cf-sidebar {
+        width: 63px;
+        min-width: 63px;
+        padding: 0.6em 0 0 0;
+      }
+      .cf-side-link, .cf-side-link.active, .cf-side-link:hover {
+        padding: 1em 0.7em;
+        border-radius: 10px;
+        justify-content: center;
+        font-size: 1.15em;
+      }
+      .cf-topbar {
+        padding-left: 63px;
+      }
       .cf-topbar-title { font-size: 1.07em; }
       .cf-main { margin-left: 63px; }
     }
-    .cf-section { margin-bottom: 3em; }
-    .cf-card { background: var(--cf-card); border-radius: 15px; padding: 2.2em 2em 1.7em 2em; box-shadow: var(--cf-shadow); margin-bottom: 2.7em; border: 1px solid var(--cf-border); max-width: 700px;}
-    .cf-card-h { font-size: 1.2em; color: var(--cf-orange); font-weight: 700; margin-bottom: 1.2em; letter-spacing: 0.2px;}
-    .cf-desc { color: var(--cf-gray); font-size: 1.07em; margin-bottom: 2.3em; line-height: 1.7;}
-    .cf-file-list { list-style: none; padding: 0; margin: 0;}
-    .cf-file-row { display: flex; align-items: center; justify-content: space-between; padding: 1.1em 0.8em; border-radius: 10px; margin-bottom: 0.6em; background: #f7f8fa; border: 1px solid var(--cf-border); transition: box-shadow 0.13s, border 0.13s, background 0.13s; box-shadow: 0 1px 4px #f3802011;}
-    .cf-file-row:hover { box-shadow: 0 4px 18px #f3802022; border: 1px solid var(--cf-orange-light); background: #fff8f2;}
-    .cf-file-link { color: var(--cf-dark); text-decoration: none; font-weight: 600; font-size: 1.07em; letter-spacing: 0.2px; flex: 1; transition: color 0.17s;}
-    .cf-file-link:hover { color: var(--cf-orange); text-decoration: underline;}
-    .cf-edit-btn, .cf-copy-btn, .cf-pin-btn { background: none; border: none; outline: none; cursor: pointer; margin-left: 0.7rem; padding: 0.22rem 0.37rem; border-radius: 7px; transition: background 0.18s; display: inline-flex; align-items: center;}
-    .cf-edit-btn:hover { background: #ffe0c2;}
-    .cf-copy-btn:hover { background: #e8fadd;}
-    .cf-pin-btn.pinned { background: #ffe0c2;}
-    .cf-edit-icon, .cf-copy-icon, .cf-pin-icon { width: 22px; height: 22px; transition: fill 0.15s;}
-    .cf-edit-icon { fill: var(--cf-orange);}
-    .cf-edit-btn:hover .cf-edit-icon { fill: #ffb47e;}
-    .cf-copy-icon { fill: var(--cf-green);}
-    .cf-copy-btn:hover .cf-copy-icon { fill: #17c964;}
-    .cf-pin-icon { fill: var(--cf-gray);}
-    .cf-pin-btn.pinned .cf-pin-icon { fill: var(--cf-orange);}
-    .cf-no-files { color: #b2adc7; padding: 1.5em 0; text-align: center;}
-    .cf-footer { color: #b2adc7; text-align: center; margin: 3rem 0 0 0; font-size: 0.99em; letter-spacing: 0.1px;}
-    .cf-actions-bar { display: flex; gap: 1.4em; margin: 0 0 0.7em 0; align-items: center;}
-    .cf-btn { background: var(--cf-orange); color: #fff; border: none; border-radius: 7px; padding: 0.62em 1.2em; font-weight: 600; font-size: 1.07em; cursor: pointer; box-shadow: 0 2px 8px #f3802014; transition: background 0.17s;}
-    .cf-btn:hover { background: #ffb47e; color: var(--cf-dark);}
-    .cf-folder-tree { font-size: 1.05em; }
-    .cf-folder { font-weight: 700; color: var(--cf-orange); margin-top: 0.8em; }
-    .cf-file-details-panel { background: #fff8f2; border-radius: 10px; box-shadow: 0 2px 12px #f3802012; border: 1.5px solid var(--cf-orange-light); padding: 1.4em 1em; margin-top: 1.4em; max-width: 390px;}
-    .cf-file-details-title { color: var(--cf-orange); font-size: 1.15em; font-weight: 700; margin-bottom: 0.7em;}
-    .cf-file-details-meta { font-size: 0.99em; color: var(--cf-gray);}
-    .cf-file-details-preview { background: #fff; border-radius: 6px; border: 1px solid #eee; font-size: 1.01em; margin-top: 0.7em; padding: 0.6em 0.8em; max-height: 180px; overflow: auto; color: #222; }
-    .cf-file-details-close { background: none; border: none; color: var(--cf-orange); font-weight: 800; float: right; cursor: pointer; font-size: 1.1em;}
-    .cf-pinned-list { margin-top: 0.9em; }
-    .cf-pinned-h { color: var(--cf-green); font-size: 1.13em; font-weight: 600; margin-bottom: 0.4em; }
+    .cf-section {
+      margin-bottom: 3em;
+    }
+    .cf-card {
+      background: var(--cf-card);
+      border-radius: 15px;
+      padding: 2.2em 2em 1.7em 2em;
+      box-shadow: var(--cf-shadow);
+      margin-bottom: 2.7em;
+      border: 1px solid var(--cf-border);
+      max-width: 720px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .cf-card-h {
+      font-size: 1.2em;
+      color: var(--cf-orange);
+      font-weight: 700;
+      margin-bottom: 1.2em;
+      letter-spacing: 0.2px;
+    }
+    .cf-desc {
+      color: var(--cf-gray);
+      font-size: 1.07em;
+      margin-bottom: 2.3em;
+      line-height: 1.7;
+    }
+    /* Folder tree styles */
+    .cf-folder-tree {
+      margin: 0;
+      padding: 0.4em 0 0.4em 0.3em;
+      font-size: 1.03em;
+    }
+    .cf-folder {
+      font-weight: 700;
+      margin: 0.5em 0 0.2em 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      cursor: pointer;
+      color: var(--cf-orange);
+    }
+    .cf-folder.collapsed > .cf-folder-children {
+      display: none;
+    }
+    .cf-folder-children {
+      margin-left: 1.3em;
+      padding-left: 0.6em;
+      border-left: 2px solid var(--cf-border);
+    }
+    .cf-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7em 0.8em;
+      border-radius: 10px;
+      margin-bottom: 0.35em;
+      background: var(--cf-file-bg);
+      border: 1px solid var(--cf-border);
+      transition: box-shadow 0.13s, border 0.13s, background 0.13s;
+      box-shadow: 0 1px 4px #f3802011;
+      gap: 0.7em;
+    }
+    .cf-file-row:hover {
+      box-shadow: 0 4px 18px #f3802022;
+      border: 1px solid var(--cf-orange-light);
+      background: #fff8f2;
+    }
+    .cf-file-link {
+      color: var(--cf-dark);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.07em;
+      letter-spacing: 0.2px;
+      flex: 1;
+      transition: color 0.17s;
+      margin-right: 0.4em;
+    }
+    [data-theme="dark"] .cf-file-link {
+      color: #fff;
+    }
+    .cf-file-link:hover {
+      color: var(--cf-orange);
+      text-decoration: underline;
+    }
+    .cf-edit-btn {
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      margin-left: 0.6rem;
+      padding: 0.13rem 0.27rem;
+      border-radius: 7px;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+    }
+    .cf-edit-btn:hover {
+      background: #ffe0c2;
+    }
+    .cf-edit-icon {
+      width: 20px;
+      height: 20px;
+      fill: var(--cf-orange);
+      transition: fill 0.15s;
+    }
+    .cf-edit-btn:hover .cf-edit-icon {
+      fill: #ffb47e;
+    }
+    .cf-tags {
+      display: flex;
+      gap: 0.4em;
+      flex-wrap: wrap;
+      margin-right: 0.4em;
+    }
+    .cf-tag {
+      background: var(--cf-tag-bg);
+      color: var(--cf-tag-color);
+      border-radius: 0.6em;
+      padding: 0.15em 0.7em;
+      font-size: 0.98em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 0.1em;
+      margin-bottom: 0.05em;
+      user-select: none;
+      transition: background 0.18s, color 0.18s;
+      border: none;
+      outline: none;
+    }
+    .cf-tag.selected {
+      background: var(--cf-orange);
+      color: #fff;
+    }
+    .cf-tag-remove {
+      margin-left: 0.4em;
+      color: #a00;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.15em;
+      vertical-align: middle;
+    }
+    .cf-add-tag-form {
+      display: flex;
+      gap: 0.2em;
+      margin-top: 0.2em;
+      align-items: center;
+    }
+    .cf-add-tag-input {
+      background: var(--cf-input-bg);
+      border: 1px solid var(--cf-border);
+      color: var(--cf-dark);
+      border-radius: 5px;
+      padding: 0.17em 0.6em;
+      font-size: 0.97em;
+      width: 5.5em;
+      transition: background 0.3s, color 0.3s;
+    }
+    .cf-add-tag-btn {
+      background: var(--cf-orange);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.15em 0.7em;
+      font-size: 0.97em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cf-add-tag-btn:hover {
+      background: #ffb47e;
+      color: var(--cf-dark);
+    }
+    .cf-tags-bar {
+      margin-bottom: 1em;
+      display: flex;
+      gap: 0.4em;
+      flex-wrap: wrap;
+    }
+    .cf-tags-bar .cf-tag {
+      border: 1px solid var(--cf-border);
+      padding: 0.17em 0.75em;
+      font-size: 1.04em;
+      margin-bottom: 0.2em;
+    }
+    .cf-no-files {
+      color: #b2adc7;
+      padding: 1.5em 0;
+      text-align: center;
+    }
+    .cf-footer {
+      color: #b2adc7;
+      text-align: center;
+      margin: 3rem 0 0 0;
+      font-size: 0.99em;
+      letter-spacing: 0.1px;
+    }
   </style>
 </head>
 <body>
-  <div id="cf-loader" class="cf-loader">
-    <div class="cf-loader-logo">
-      <img src={logoUrl} alt="Code Unit Logo" style="width:52px; height:52px;" />
-    </div>
-    <div style="font-weight:700;font-size:1.22em;color:var(--cf-orange);letter-spacing:0.2px;">Code Unit</div>
-    <div class="cf-loader-dots" aria-label="Loading...">
-      <div class="cf-dot"></div>
-      <div class="cf-dot"></div>
-      <div class="cf-dot"></div>
-    </div>
-  </div>
   <nav class="cf-sidebar">
     <div style="display:flex;flex-direction:column;align-items:center;gap:1.2em;">
       <img src={logoUrl} alt="Code Unit Logo" style="width:44px;height:44px;background:#fff;border-radius:12px;box-shadow:0 2px 8px #f3802012;">
@@ -175,11 +430,15 @@ const userInfo = {
         <svg viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 0 0-1.414 0l-7 7A1 1 0 0 0 3 11h1v6a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3h2v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-6h1a1 1 0 0 0 .707-1.707l-7-7z"></path></svg>
         Home
       </a>
+      <a class="cf-side-link" href="/about">
+        <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 10c-2.21 0-4.2-1.17-5.2-3 .03-2 4-3.1 5.2-3.1 1.2 0 5.17 1.1 5.2 3.1-1 1.83-3 3-5.2 3z"></path></svg>
+        About
+      </a>
       <a class="cf-side-link" href="/profile">
         <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 10c-2.21 0-4.2-1.17-5.2-3 .03-2 4-3.1 5.2-3.1 1.2 0 5.17 1.1 5.2 3.1-1 1.83-3 3-5.2 3z"></path></svg>
         Profile
       </a>
-      <a class="cf-side-link" href={`https://github.com/${user}/${repo}`} target="_blank" rel="noopener">
+      <a class="cf-side-link" href={`https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}`} target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.427 2.867 8.18 6.839 9.504.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.031 1.531 1.031.892 1.53 2.341 1.088 2.91.833.091-.647.349-1.087.635-1.338-2.221-.253-4.555-1.112-4.555-4.951 0-1.093.39-1.987 1.029-2.686-.103-.254-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.748-1.026 2.748-1.026.546 1.378.202 2.396.1 2.65.64.699 1.028 1.593 1.028 2.686 0 3.849-2.337 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.746 0 .267.181.578.688.48C19.135 20.197 22 16.447 22 12.021 22 6.484 17.522 2 12 2z"></path></svg>
         GitHub
       </a>
@@ -188,227 +447,157 @@ const userInfo = {
   <div class="cf-topbar">
     <img class="cf-topbar-logo" src={logoUrl} alt="Logo" />
     <span class="cf-topbar-title">Code Unit</span>
+    <button class="cf-theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+      <svg id="theme-toggle-icon" viewBox="0 0 20 20">
+        <path id="theme-toggle-icon-path" d="M10 2a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm6.364 3.636a1 1 0 0 1 0 1.414l-1.414 1.415a1 1 0 1 1-1.415-1.415l1.415-1.414a1 1 0 0 1 1.414 0zM18 11a1 1 0 1 1 0-2h-2a1 1 0 1 1 0 2h2zm-2.05 5.364a1 1 0 0 1-1.415 0l-1.414-1.415a1 1 0 1 1 1.415-1.414l1.414 1.414a1 1 0 0 1 0 1.415zM10 18a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1zm-6.364-3.636a1 1 0 0 1 0-1.414l1.414-1.415a1 1 0 1 1 1.415 1.415L5.05 15.364a1 1 0 0 1-1.414 0zM2 9a1 1 0 1 1 0 2h2a1 1 0 1 1 0-2H2zm2.05-5.364a1 1 0 0 1 1.415 0l1.414 1.415A1 1 0 1 1 5.464 6.464L4.05 5.05a1 1 0 0 1 0-1.414z"/>
+      </svg>
+    </button>
   </div>
   <main class="cf-main">
     <section class="cf-section">
       <div class="cf-card">
-        <div class="cf-card-h">Quick Actions</div>
-        <div class="cf-actions-bar">
-          <button class="cf-btn" onclick="openCreateFileModal()">Create New File</button>
-          <a class="cf-btn" href={`https://github.com/${user}/${repo}`} target="_blank">Open GitHub Repo</a>
+        <div class="cf-card-h">Folders & Files</div>
+        <div class="cf-desc">
+          Browse, tag, and edit your files.<br>
+          <span style="color:var(--cf-gray);font-size:0.97em;">
+            Tags and filters are stored in your browser (localStorage).
+          </span>
         </div>
-        <div id="cf-create-file-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#22243a55;z-index:1000;align-items:center;justify-content:center;">
-          <div style="background:#fff;border-radius:12px;max-width:400px;width:96vw;padding:2em 1.5em;box-shadow:0 8px 40px #22243a22;position:relative;">
-            <button onclick="closeCreateFileModal()" style="position:absolute;top:0.6em;right:0.8em;background:none;color:#f38020;font-size:1.3em;border:none;cursor:pointer;">×</button>
-            <h2 style="color:#f38020;margin-top:0;">Create New File</h2>
-            <label for="cf-new-filename" style="font-size:1.06em;">File Name</label>
-            <input id="cf-new-filename" style="width:100%;margin-bottom:1em;padding:0.5em;font-size:1.09em;border-radius:6px;border:1.5px solid #eee;">
-            <label for="cf-new-filecontent" style="font-size:1.06em;">Content</label>
-            <textarea id="cf-new-filecontent" style="width:100%;height:70px;padding:0.5em;font-size:1.09em;border-radius:6px;border:1.5px solid #eee;"></textarea>
-            <div style="margin-top:1em;">
-              <button onclick="downloadCreatedFile()" class="cf-btn">Download</button>
-              <button onclick="copyCreatedFile()" class="cf-btn" style="background:#e8e8ed;color:#22243a;margin-left:0.7em;">Copy</button>
-            </div>
-            <div id="cf-create-file-msg" style="margin-top:0.7em;font-size:0.98em;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="cf-card">
-        <div class="cf-card-h">Recent Activity</div>
-        {recentFiles.length > 0 ? (
-          <ul class="cf-file-list">
-            {recentFiles.map(file => (
-              <li class="cf-file-row">
-                <a class="cf-file-link" href={`/texts/${file.relPath}`} target="_blank" rel="noopener">{file.relPath}</a>
-                <button class="cf-copy-btn" onclick={`copyPublicLink('${file.relPath}')`} title="Copy public link">
-                  <svg class="cf-copy-icon" viewBox="0 0 20 20"><path d="M10 13a1 1 0 0 1-.71-.29l-4-4a1 1 0 0 1 1.42-1.42L10 10.59l3.29-3.3a1 1 0 0 1 1.42 1.42l-4 4A1 1 0 0 1 10 13z"/></svg>
-                </button>
-                <a class="cf-edit-btn" href={`https://github.com/${user}/${repo}/edit/${branch}/public/texts/${file.relPath}`} target="_blank" title="Edit on GitHub">
-                  <svg class="cf-edit-icon" viewBox="0 0 20 20"><path d="M14.85 2.15a2.121 2.121 0 0 1 3 3l-9.04 9.04a1 1 0 0 1-.47.26l-4.24 1.06a.5.5 0 0 1-.61-.61l1.06-4.24a1 1 0 0 1 .26-.47l9.04-9.04zm2.12.88a1.121 1.121 0 0 0-1.59 0l-1.13 1.13 1.59 1.59 1.13-1.13a1.121 1.121 0 0 0 0-1.59zM13.07 5.93l-8.28 8.28-.64 2.57 2.57-.64 8.28-8.28-2.13-2.13z"></path></svg>
-                </a>
-                <button class="cf-pin-btn" data-pinfile="{file.relPath}" onclick={`togglePin(event, '${file.relPath}')`} title="Pin/unpin file">
-                  <svg class="cf-pin-icon" viewBox="0 0 20 20"><path d="M9 2a1 1 0 0 1 2 0v8.58l4.3 4.3a1 1 0 0 1-1.42 1.42l-4.3-4.3V2z"/></svg>
-                </button>
-                <button class="cf-copy-btn" onclick={`showFileDetails('${file.relPath}')`} title="Details">
-                  <svg class="cf-copy-icon" style="fill:#ffa500;" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><text x="10" y="15" font-size="11" text-anchor="middle" fill="#fff">i</text></svg>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div class="cf-no-files">No recent file activity.</div>
-        )}
-      </div>
-      <div class="cf-card">
-        <div class="cf-card-h">Pinned Files</div>
-        <div id="cf-pinned-files" class="cf-pinned-list"></div>
-      </div>
-      <div class="cf-card">
-        <div class="cf-card-h">Folders</div>
-        <div class="cf-folder-tree">
-          <script type="text/astro">
-            function renderFolder(node, path="") {
-              let out = "";
-              if (node.files) {
-                out += '<ul>';
-                for (const file of node.files) {
-                  out += `<li>
-                    <a class="cf-file-link" href="/texts/${file.relPath}" target="_blank">${file.name}</a>
-                    <button class="cf-pin-btn" data-pinfile="${file.relPath}" onclick="togglePin(event, '${file.relPath}')" title="Pin/unpin file">
-                      <svg class="cf-pin-icon" viewBox="0 0 20 20"><path d="M9 2a1 1 0 0 1 2 0v8.58l4.3 4.3a1 1 0 0 1-1.42 1.42l-4.3-4.3V2z"/></svg>
-                    </button>
-                    <button class="cf-copy-btn" onclick="copyPublicLink('${file.relPath}')" title="Copy public link">
-                      <svg class="cf-copy-icon" viewBox="0 0 20 20"><path d="M10 13a1 1 0 0 1-.71-.29l-4-4a1 1 0 0 1 1.42-1.42L10 10.59l3.29-3.3a1 1 0 0 1 1.42 1.42l-4 4A1 1 0 0 1 10 13z"/></svg>
-                    </button>
-                  </li>`;
-                }
-                out += '</ul>';
-              }
-              if (node.folders) {
-                for (const sub in node.folders) {
-                  out += `<div class="cf-folder">${sub}</div>`;
-                  out += renderFolder(node.folders[sub], path + sub + "/");
-                }
-              }
-              return out;
-            }
-            return renderFolder(folderTree, "");
-          </script>
-        </div>
-      </div>
-      <div id="cf-file-details-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#22243a55;z-index:1001;align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:12px;max-width:420px;width:96vw;padding:1.5em 1em;box-shadow:0 8px 40px #22243a22;position:relative;">
-          <button onclick="closeFileDetails()" style="position:absolute;top:0.3em;right:0.7em;background:none;color:#f38020;font-size:1.2em;border:none;cursor:pointer;">×</button>
-          <div id="cf-file-details-panel" class="cf-file-details-panel"></div>
-        </div>
+        <div id="cf-tags-bar" class="cf-tags-bar"></div>
+        <div id="cf-folder-tree" class="cf-folder-tree"></div>
       </div>
     </section>
     <div class="cf-footer">
-      &copy; {new Date().getFullYear()} {user} · Code Unit
+      &copy; {new Date().getFullYear()} {GITHUB_USERNAME} · Code Unit
     </div>
   </main>
-  <script>
-    // Cloudflare loading screen logic
-    (() => {
-      const loader = document.getElementById("cf-loader");
-      let minTime = 1000, maxTime = 2000;
-      let shownAt = Date.now();
-      function hideLoader() {
-        loader.classList.add('hide');
-        setTimeout(() => loader.style.display = 'none', 600);
+  <script type="module">
+    // --- Folders & Tags client logic ---
+    // Inputs from Astro
+    const FILE_TREE = JSON.parse(decodeURIComponent(`{encodeURIComponent(JSON.stringify(fileTree))}`));
+    const GITHUB_USERNAME = "{GITHUB_USERNAME}";
+    const GITHUB_REPO = "{GITHUB_REPO}";
+    const GITHUB_BRANCH = "{GITHUB_BRANCH}";
+
+    // Local tags storage
+    function getAllTags() {
+      return JSON.parse(localStorage.getItem("codeunit_tags") || "{}");
+    }
+    function setAllTags(tags) {
+      localStorage.setItem("codeunit_tags", JSON.stringify(tags));
+    }
+    function getFileTags(path) {
+      return getAllTags()[path] || [];
+    }
+    function setFileTags(path, tags) {
+      const all = getAllTags();
+      all[path] = tags.filter(Boolean);
+      setAllTags(all);
+    }
+    // Tag filter
+    let selectedTag = null;
+    function renderTagsBar() {
+      const tagsBar = document.getElementById("cf-tags-bar");
+      const all = getAllTags();
+      const tagSet = {};
+      Object.values(all).forEach(tags => tags.forEach(t => tagSet[t] = true));
+      const tagList = Object.keys(tagSet).sort();
+      tagsBar.innerHTML = tagList.map(tag =>
+        `<button class="cf-tag${selectedTag === tag ? " selected" : ""}" data-tag="${tag}">${tag}</button>`
+      ).join("") +
+      (selectedTag ? `<button class="cf-tag" style="background:#eee;color:#444;" id="clear-tag">Clear filter</button>` : "");
+      tagsBar.querySelectorAll(".cf-tag[data-tag]").forEach(btn => btn.onclick = () => {
+        selectedTag = btn.dataset.tag;
+        renderTagsBar(); renderFolderTree();
+      });
+      const clear = document.getElementById("clear-tag");
+      if (clear) clear.onclick = () => { selectedTag = null; renderTagsBar(); renderFolderTree(); };
+    }
+    // Folders/files UI
+    function renderFolderTree() {
+      const tree = document.getElementById("cf-folder-tree");
+      function folderHtml(node, prefix = "") {
+        return `<ul style="margin:0;padding-left:0.1em">` + Object.entries(node).map(([name, child]) => {
+          if (child === null) {
+            // File
+            const path = (prefix ? prefix + "/" : "") + name;
+            const tags = getFileTags(path);
+            if (selectedTag && !tags.includes(selectedTag)) return "";
+            return `<li class="cf-file-row">
+              <a class="cf-file-link" href="/texts/${path}" target="_blank">${name}</a>
+              <a class="cf-edit-btn" href="https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/public/texts/${path}" target="_blank" title="Edit on GitHub">
+                <svg class="cf-edit-icon" viewBox="0 0 20 20"><path d="M14.85 2.15a2.121 2.121 0 0 1 3 3l-9.04 9.04a1 1 0 0 1-.47.26l-4.24 1.06a.5.5 0 0 1-.61-.61l1.06-4.24a1 1 0 0 1 .26-.47l9.04-9.04zm2.12.88a1.121 1.121 0 0 0-1.59 0l-1.13 1.13 1.59 1.59 1.13-1.13a1.121 1.121 0 0 0 0-1.59zM13.07 5.93l-8.28 8.28-.64 2.57 2.57-.64 8.28-8.28-2.13-2.13z"></path></svg>
+              </a>
+              <span class="cf-tags" data-path="${path}">
+                ${tags.map(t =>
+                  `<span class="cf-tag" data-tag="${t}">${t}<button class="cf-tag-remove" title="Remove tag" data-remove="${t}">&times;</button></span>`
+                ).join("")}
+              </span>
+              <form class="cf-add-tag-form" data-path="${path}" style="display:inline-flex;">
+                <input class="cf-add-tag-input" type="text" placeholder="add tag" maxlength="18" />
+                <button class="cf-add-tag-btn" type="submit">+</button>
+              </form>
+            </li>`;
+          } else {
+            const id = "folder-" + btoa((prefix ? prefix + "/" : "") + name).replace(/=+$/,"");
+            return `<li class="cf-folder" data-folder="${id}">
+              <span><svg width="1em" height="1em" viewBox="0 0 24 24" style="vertical-align:-0.15em;"><path fill="currentColor" d="M10 4H2v16h20V6H12l-2-2z"/></svg> ${name}</span>
+              <div class="cf-folder-children" id="${id}">${folderHtml(child, (prefix ? prefix + "/" : "") + name)}</div>
+            </li>`;
+          }
+        }).join("") + `</ul>`;
       }
-      window.addEventListener('DOMContentLoaded', () => {
-        const elapsed = Date.now() - shownAt;
-        if (elapsed < minTime) { setTimeout(hideLoader, minTime - elapsed); } else { hideLoader(); }
-        setTimeout(hideLoader, maxTime);
+      tree.innerHTML = folderHtml(FILE_TREE);
+      // Folder collapse/expand
+      tree.querySelectorAll(".cf-folder").forEach(folder => {
+        const span = folder.querySelector("span");
+        span.onclick = () => {
+          folder.classList.toggle("collapsed");
+        };
       });
-    })();
-
-    // Pinning (localStorage)
-    function getPinned() {
-      try { return JSON.parse(localStorage.getItem("cf-pinned-files")||"[]"); } catch { return []; }
-    }
-    function setPinned(arr) {
-      localStorage.setItem("cf-pinned-files", JSON.stringify(arr));
-      renderPinned();
-    }
-    function togglePin(e, path) {
-      e.preventDefault();
-      e.stopPropagation();
-      let pins = getPinned();
-      if (pins.includes(path)) pins = pins.filter(f => f !== path);
-      else pins.push(path);
-      setPinned(pins);
-      document.querySelectorAll("[data-pinfile='"+path+"']").forEach(btn => btn.classList.toggle("pinned", pins.includes(path)));
-    }
-    function renderPinned() {
-      const pins = getPinned();
-      const allFiles = Array.from(document.querySelectorAll(".cf-file-link")).map(a => a.getAttribute("href").replace("/texts/", ""));
-      const list = pins.map(path => {
-        if (!allFiles.includes(path)) return "";
-        return `<div style="margin-bottom:0.5em;">
-          <a class="cf-file-link" href="/texts/${path}" target="_blank">${path}</a>
-          <button class="cf-copy-btn" onclick="copyPublicLink('${path}')" title="Copy public link">
-            <svg class="cf-copy-icon" viewBox="0 0 20 20"><path d="M10 13a1 1 0 0 1-.71-.29l-4-4a1 1 0 0 1 1.42-1.42L10 10.59l3.29-3.3a1 1 0 0 1 1.42 1.42l-4 4A1 1 0 0 1 10 13z"/></svg>
-          </button>
-          <button class="cf-pin-btn pinned" data-pinfile="${path}" onclick="togglePin(event, '${path}')" title="Unpin file">
-            <svg class="cf-pin-icon" viewBox="0 0 20 20"><path d="M9 2a1 1 0 0 1 2 0v8.58l4.3 4.3a1 1 0 0 1-1.42 1.42l-4.3-4.3V2z"/></svg>
-          </button>
-        </div>`;
-      }).join("") || "<span style='color:#b2adc7;'>No pinned files.</span>";
-      document.getElementById("cf-pinned-files").innerHTML = list;
-      // Sync pin buttons
-      document.querySelectorAll("[data-pinfile]").forEach(btn => {
-        btn.classList.toggle("pinned", pins.includes(btn.getAttribute("data-pinfile")));
+      // Tag remove
+      tree.querySelectorAll(".cf-tag-remove").forEach(btn => {
+        btn.onclick = (e) => {
+          const path = btn.closest(".cf-tags").dataset.path;
+          const tag = btn.dataset.remove;
+          setFileTags(path, getFileTags(path).filter(t => t !== tag));
+          renderTagsBar(); renderFolderTree();
+          e.stopPropagation(); e.preventDefault();
+        };
+      });
+      // Add tag
+      tree.querySelectorAll(".cf-add-tag-form").forEach(form => {
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          const path = form.dataset.path;
+          const input = form.querySelector("input");
+          const tag = input.value.trim();
+          if (tag && !getFileTags(path).includes(tag)) {
+            setFileTags(path, [...getFileTags(path), tag]);
+            renderTagsBar(); renderFolderTree();
+          }
+          input.value = "";
+        };
       });
     }
-    window.renderPinned = renderPinned; window.togglePin = togglePin;
+    renderTagsBar(); renderFolderTree();
 
-    // Copy public link
-    function copyPublicLink(path) {
-      const url = window.location.origin + "/texts/" + path;
-      navigator.clipboard.writeText(url);
-      alert("Link copied: " + url);
+    // --- Dark/Light theme ---
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("codeunit_theme", theme);
+      document.getElementById("theme-toggle-icon-path").setAttribute("d",
+        theme === "dark"
+          ? "M17.293 13.293A8 8 0 0 1 6.707 2.707a8.001 8.001 0 1 0 10.586 10.586z"
+          : "M10 2a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm6.364 3.636a1 1 0 0 1 0 1.414l-1.414 1.415a1 1 0 1 1-1.415-1.415l1.415-1.414a1 1 0 0 1 1.414 0zM18 11a1 1 0 1 1 0-2h-2a1 1 0 1 1 0 2h2zm-2.05 5.364a1 1 0 0 1-1.415 0l-1.414-1.415a1 1 0 1 1 1.415-1.414l1.414 1.414a1 1 0 0 1 0 1.415zM10 18a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1zm-6.364-3.636a1 1 0 0 1 0-1.414l1.414-1.415a1 1 0 1 1 1.415 1.415L5.05 15.364a1 1 0 0 1-1.414 0zM2 9a1 1 0 1 1 0 2h2a1 1 0 1 1 0-2H2zm2.05-5.364a1 1 0 0 1 1.415 0l1.414 1.415A1 1 0 1 1 5.464 6.464L4.05 5.05a1 1 0 0 1 0-1.414z"
+      );
     }
-    window.copyPublicLink = copyPublicLink;
-
-    // Quick file creation
-    function openCreateFileModal() {
-      document.getElementById("cf-create-file-modal").style.display = "flex";
-      document.getElementById("cf-create-file-msg").textContent = "";
-      document.getElementById("cf-new-filename").value = "";
-      document.getElementById("cf-new-filecontent").value = "";
-    }
-    function closeCreateFileModal() {
-      document.getElementById("cf-create-file-modal").style.display = "none";
-    }
-    function downloadCreatedFile() {
-      const filename = document.getElementById("cf-new-filename").value.trim();
-      const content = document.getElementById("cf-new-filecontent").value;
-      if (!filename) { document.getElementById("cf-create-file-msg").textContent = "File name required."; return; }
-      const blob = new Blob([content], {type:"text/plain"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      document.getElementById("cf-create-file-msg").textContent = "File downloaded!";
-    }
-    function copyCreatedFile() {
-      const content = document.getElementById("cf-new-filecontent").value;
-      navigator.clipboard.writeText(content);
-      document.getElementById("cf-create-file-msg").textContent = "Content copied!";
-    }
-    window.openCreateFileModal = openCreateFileModal;
-    window.closeCreateFileModal = closeCreateFileModal;
-    window.downloadCreatedFile = downloadCreatedFile;
-    window.copyCreatedFile = copyCreatedFile;
-
-    // File details panel
-    function showFileDetails(relPath) {
-      fetch("/texts/" + relPath)
-        .then(r => r.ok ? r.text() : "(Unable to preview)").then(txt => {
-          document.getElementById("cf-file-details-panel").innerHTML =
-            `<div class="cf-file-details-title">${relPath}</div>
-            <div class="cf-file-details-meta">
-              <b>Link:</b> <a href="/texts/${relPath}" target="_blank">/texts/${relPath}</a><br>
-              <b>GitHub:</b> <a href="https://github.com/${user}/${repo}/edit/${branch}/public/texts/${relPath}" target="_blank">Edit</a><br>
-              <b>Preview:</b>
-            </div>
-            <div class="cf-file-details-preview">${txt.replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</div>`;
-          document.getElementById("cf-file-details-modal").style.display = "flex";
-        });
-    }
-    function closeFileDetails() {
-      document.getElementById("cf-file-details-modal").style.display = "none";
-      document.getElementById("cf-file-details-panel").innerHTML = "";
-    }
-    window.showFileDetails = showFileDetails;
-    window.closeFileDetails = closeFileDetails;
-
-    // Startup UI sync
-    window.addEventListener("DOMContentLoaded", () => {
-      renderPinned();
-    });
+    const savedTheme = localStorage.getItem("codeunit_theme");
+    if (savedTheme) setTheme(savedTheme);
+    document.getElementById("theme-toggle").onclick = () => {
+      const curr = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      setTheme(curr);
+    };
   </script>
 </body>
 </html>
