@@ -1,50 +1,147 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+// src/pages/index.astro
+
+import fs from 'fs';
+import path from 'path';
+
+const textsDir = path.resolve('public', 'texts');
+const files = fs.existsSync(textsDir) ? fs.readdirSync(textsDir) : [];
+const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
+
+// Example for future expansion: more pages
+const otherPages = [
+  { name: "About Storage", href: "/about" },
+  // Add more as needed
+];
 ---
 
-<!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Storage Unit · Raw Text Files</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        background: #f7fafc;
+        color: #222;
+      }
+      header {
+        background: #22223b;
+        color: #fff;
+        padding: 2rem 0 1rem 0;
+        text-align: center;
+        border-bottom: 3px solid #4a4e69;
+      }
+      .logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 8px #4a4e6940);
+        background: #fff;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+      }
+      h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+      }
+      .desc {
+        color: #9a8c98;
+        margin-bottom: 2rem;
+        font-size: 1.15rem;
+      }
+      .container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 32px 0 #22223b17;
+      }
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0 1rem 0;
+      }
+      .file-list li {
+        margin: 0.7rem 0;
+        background: #f2e9e4;
+        border-radius: 0.6rem;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        transition: background 0.2s;
+      }
+      .file-list li:hover {
+        background: #c9ada7;
+      }
+      .file-link {
+        color: #22223b;
+        text-decoration: none;
+        font-weight: 500;
+        flex: 1;
+      }
+      .external {
+        font-size: 1.1em;
+        margin-left: 0.3em;
+        color: #9a8c98;
+      }
+      nav {
+        margin: 2rem 0 0 0;
+        text-align: center;
+      }
+      nav a {
+        color: #4a4e69;
+        margin: 0 1.2rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+      }
+      nav a:hover {
+        color: #22223b;
+      }
+      @media (max-width: 700px) {
+        .container { padding: 1rem; }
+        .logo { width: 70px; height: 70px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src={logoUrl} class="logo" alt="Storage Unit Logo" />
+      <h1>Storage Unit</h1>
+      <div class="desc">
+        Store and fetch raw text files, scripts, and resources.<br/>
+        Fast, simple, and always accessible.
+      </div>
+    </header>
+    <div class="container">
+      <h2>Available Files</h2>
+      {files.length > 0 ? (
+        <ul class="file-list">
+          {files.map(file => (
+            <li>
+              <a class="file-link" href={`/texts/${file}`} target="_blank" rel="noopener">
+                {file}
+                <span class="external" title="Open raw">{'↗'}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div style="color:#c9ada7;">No files are stored yet. Add text files to <code>public/texts/</code> to get started!</div>
+      )}
+      <nav>
+        {otherPages.map(page => (
+          <a href={page.href}>{page.name}</a>
+        ))}
+      </nav>
+    </div>
+    <footer style="text-align:center; color:#c9ada7; margin:3rem 0 1rem 0; font-size:0.95em;">
+      &copy; {new Date().getFullYear()} Storage Unit by romemasters
+    </footer>
+  </body>
 </html>
