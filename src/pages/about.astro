@@ -2,6 +2,8 @@
 // src/pages/about.astro
 
 const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
+const user = "romemasters";
+const repo = "romes-cool-projects";
 ---
 
 <html lang="en">
@@ -13,8 +15,8 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
       body {
         font-family: 'Segoe UI', Arial, sans-serif;
         margin: 0;
-        background: #f7fafc;
-        color: #222;
+        background: #f6f8fa;
+        color: #22223b;
       }
       header {
         background: #22223b;
@@ -24,13 +26,13 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
         border-bottom: 3px solid #4a4e69;
       }
       .logo {
-        width: 90px;
-        height: 90px;
+        width: 70px;
+        height: 70px;
         object-fit: contain;
-        filter: drop-shadow(0 2px 8px #4a4e6940);
         background: #fff;
         border-radius: 50%;
         margin-bottom: 1rem;
+        box-shadow: 0 2px 10px #4a4e6940;
       }
       h1 {
         margin: 0 0 0.5rem 0;
@@ -38,22 +40,43 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
         letter-spacing: 1px;
       }
       .container {
-        max-width: 650px;
+        max-width: 570px;
         margin: 2.5rem auto;
         padding: 2.2rem 2rem;
         background: #fff;
         border-radius: 1.2rem;
-        box-shadow: 0 4px 32px 0 #22223b17;
+        box-shadow: 0 4px 24px 0 #22223b0d;
       }
       .about-text {
-        font-size: 1.16rem;
+        font-size: 1.13rem;
         color: #4a4e69;
-        margin-bottom: 2rem;
-        line-height: 1.65;
+        margin-bottom: 2.2rem;
+        line-height: 1.75;
+      }
+      .about-note {
+        color: #ad4952;
+        font-size: 1.08em;
+        background: #f2e9e4;
+        border-radius: 0.7em;
+        padding: 0.7em 1em;
+        margin: 1.6em 0 1em 0;
+      }
+      .clone-box {
+        background: #f6f8fa;
+        border-radius: 0.7em;
+        padding: 0.7em 1em;
+        margin: 1.8em 0 1.2em 0;
+        color: #22223b;
+        font-size: 1.07em;
+      }
+      .repo-link {
+        color: #4a4e69;
+        font-weight: bold;
+        text-decoration: underline;
       }
       .back-link {
         display: inline-block;
-        margin-top: 2rem;
+        margin-top: 2.4rem;
         color: #4a4e69;
         text-decoration: none;
         font-weight: 600;
@@ -62,36 +85,48 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
         transition: color 0.2s, border-color 0.2s;
       }
       .back-link:hover {
-        color: #22223b;
-        border-color: #4a4e69;
+        color: #ad4952;
+        border-color: #ad4952;
       }
       @media (max-width: 700px) {
         .container { padding: 1.2rem 0.5rem; }
-        .logo { width: 60px; height: 60px; }
+        .logo { width: 55px; height: 55px; }
       }
     </style>
   </head>
   <body>
     <header>
       <img src={logoUrl} class="logo" alt="Code Unit Logo" />
-      <h1>About Code Unit</h1>
+      <h1>About This Code Unit</h1>
     </header>
     <div class="container">
       <div class="about-text">
-        <strong>Code Unit</strong> is a simple, reliable, and accessible place to store your raw text files, scripts, and resources for external use.<br/><br/>
-        Whether you need to fetch configuration files for automation, keep snippets handy for your projects, or share plain data for scripts and bots, Code Unit is built for direct, fast access—no frills, just files.<br/><br/>
-        <ul style="margin: 1em 0 0 2em;">
-          <li>Easy public URLs for every file</li>
-          <li>Secure, transparent, and always available</li>
-          <li>Perfect for coders, makers, and tinkerers</li>
-        </ul>
+        <span class="about-note">
+          <strong>Personal Use Only:</strong> This website is my own private code storage space for scripts, text files, and quick notes. Only I use it—if you see something here, it's just a handy spot for my own projects and automations!
+        </span>
         <br/>
-        <em>Powered by open source and community spirit. Want to contribute or suggest a feature? Visit our repo!</em>
+        If you like the idea of a simple web-based storage locker for your own files, you’re welcome to make your own. 
+        <div class="clone-box">
+          Clone or fork the original repository here:<br/>
+          <a class="repo-link" href={`https://github.com/${user}/${repo}`} target="_blank" rel="noopener">
+            github.com/{user}/{repo}
+          </a>
+          <br/>
+          <span style="font-size:0.98em; color:#9a8c98;">
+            <em>It’s open source and ready for you to personalize!</em>
+          </span>
+        </div>
+        <ul>
+          <li>Add your own text files to <code>public/texts/</code></li>
+          <li>Deploy to the web (Cloudflare Pages, Vercel, Netlify, etc.)</li>
+          <li>Instantly access and edit your files from any device</li>
+        </ul>
+        <b>Have fun making it your own!</b>
       </div>
       <a class="back-link" href="/">← Back to Home</a>
     </div>
-    <footer style="text-align:center; color:#c9ada7; margin:3rem 0 1rem 0; font-size:0.95em;">
-      &copy; {new Date().getFullYear()} Code Unit by romemasters
+    <footer style="text-align:center; color:#c9ada7; margin:3rem 0 1rem 0; font-size:0.96em;">
+      &copy; {new Date().getFullYear()} {user} · Code Unit
     </footer>
   </body>
 </html>
