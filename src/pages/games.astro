@@ -1,0 +1,128 @@
+---
+import fs from 'fs';
+import path from 'path';
+
+const gamesDir = path.resolve('public', 'games');
+const games = fs.existsSync(gamesDir) ? fs.readdirSync(gamesDir).filter(f => f.endsWith('.html')) : [];
+const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projects/refs/heads/main/public/468-4684000_png-file-svg-easy-storage-icon-transparent-png.png";
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Games · Code Unit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f7f8fa;
+      color: #22243a;
+      margin: 0;
+    }
+    .cf-main {
+      margin-left: 250px;
+      padding: 80px 2.5vw 2vw 2.5vw;
+      min-height: 100vh;
+      max-width: 950px;
+      position: relative;
+    }
+    @media (max-width: 650px) {
+      .cf-main {
+        margin-left: 0;
+        padding: 80px 0.4em 1em 0.4em;
+      }
+    }
+    .cf-card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 2.2em 2em 1.7em 2em;
+      box-shadow: 0 4px 20px #22243a15;
+      margin-bottom: 2.7em;
+      border: 1px solid #e8e8ed;
+      max-width: 700px;
+    }
+    .cf-card-h {
+      font-size: 1.2em;
+      color: #f38020;
+      font-weight: 700;
+      margin-bottom: 1.2em;
+      letter-spacing: 0.2px;
+    }
+    .cf-game-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .cf-game-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1em 0.8em;
+      border-radius: 10px;
+      margin-bottom: 0.6em;
+      background: #f7f8fa;
+      border: 1px solid #e8e8ed;
+      transition: box-shadow 0.13s, border 0.13s, background 0.13s;
+      box-shadow: 0 1px 4px #f3802011;
+    }
+    .cf-game-row:hover {
+      box-shadow: 0 4px 18px #f3802022;
+      border: 1px solid #ffb47e;
+      background: #fff8f2;
+    }
+    .cf-game-link {
+      color: #22243a;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.07em;
+      letter-spacing: 0.2px;
+      flex: 1;
+      transition: color 0.17s;
+    }
+    .cf-game-link:hover {
+      color: #f38020;
+      text-decoration: underline;
+    }
+    .cf-no-games {
+      color: #b2adc7;
+      padding: 1.5em 0;
+      text-align: center;
+    }
+    .cf-footer {
+      color: #b2adc7;
+      text-align: center;
+      margin: 3rem 0 0 0;
+      font-size: 0.99em;
+      letter-spacing: 0.1px;
+    }
+  </style>
+</head>
+<body>
+  <main class="cf-main">
+    <section class="cf-section">
+      <div class="cf-card">
+        <div class="cf-card-h">Games</div>
+        <div style="color:#a0a4ab;margin-bottom:1.5em;">Play basic games hosted on this site! Click a game to play it directly in your browser.</div>
+        {games.length > 0 ? (
+          <ul class="cf-game-list">
+            {games.map(game => (
+              <li class="cf-game-row">
+                <a class="cf-game-link" href={`/games/${game}`} target="_blank" rel="noopener">{game.replace(/\.html$/,'')}</a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="cf-no-games">
+            <b>No games yet.</b> Add HTML games to <code>public/games/</code> in the repo.<br>
+            Try the included "Click Game"!
+          </div>
+        )}
+      </div>
+    </section>
+    <div class="cf-footer">
+      &copy; {new Date().getFullYear()} romemasters · Code Unit
+    </div>
+  </main>
+</body>
+</html>
