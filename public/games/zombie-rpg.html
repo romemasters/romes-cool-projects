@@ -5,6 +5,7 @@
   <title>Zombie Survival RPG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* --- Styles unchanged from previous version, keep your existing CSS --- */
     :root {
       --accent: #f38020;
       --accent2: #ffb47e;
@@ -245,7 +246,6 @@
       box-shadow: 0 2px 16px #27ae6044;
       margin-bottom: 1em;
     }
-    /* Modal styles */
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -286,7 +286,6 @@
       transition: background 0.15s, color 0.15s;
     }
     .modal-content .close-btn:hover { background: #ffd574; color: #22243a;}
-    /* Survivor dialogue styles */
     .survivor-card {
       background: #2980b950;
       border-radius: 11px;
@@ -335,13 +334,15 @@
 </head>
 <body>
   <audio id="bg-music" src="/Pixel_Video_Game_-_NTRSLNC.mp3" loop></audio>
+  <button id="toggleMusicBtn" style="position:fixed;top:12px;right:14px;z-index:90;background:#292c3c;color:#ffd574;border:none;border-radius:8px;padding:0.4em 1em;cursor:pointer;font-weight:600;">🔊 Music</button>
   <div class="container">
     <h1>Zombie Survival RPG</h1>
-    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, heal, dodge, talk, and level up!</div>
+    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, dodge, talk, and level up!</div>
     <div id="stats"></div>
     <div id="zone"></div>
     <div id="enemy"></div>
     <div id="survivor"></div>
+    <div id="poi"></div>
     <div class="actions" id="actions"></div>
     <div class="log" id="log"></div>
     <div class="inventory" id="inventory"></div>
@@ -350,6 +351,29 @@
     <div id="modal" style="display:none;"></div>
   </div>
   <script>
+    // Music controls
+    window.addEventListener('DOMContentLoaded', () => {
+      const audio = document.getElementById('bg-music');
+      function tryPlay() {
+        audio.volume = 0.2;
+        audio.play().catch(()=>{});
+        window.removeEventListener('click', tryPlay);
+        window.removeEventListener('keydown', tryPlay);
+      }
+      window.addEventListener('click', tryPlay);
+      window.addEventListener('keydown', tryPlay);
+    });
+    document.getElementById('toggleMusicBtn').onclick = function() {
+      const audio = document.getElementById('bg-music');
+      if (audio.muted) {
+        audio.muted = false;
+        this.textContent = "🔊 Music";
+      } else {
+        audio.muted = true;
+        this.textContent = "🔇 Music";
+      }
+    };
+
     // --- Game Data ---
     const playerBase = {
       name: "Survivor",
@@ -371,7 +395,10 @@
       alive: true,
       zombiesKilled: 0,
       turns: 0,
+      zoneLoots: [0,0,0,0,0]
     };
+    // Minimum loots needed per zone before moving forward
+    const zoneLootReq = [10, 11, 12, 13, 5];
 
     const zones = [
       {
@@ -490,6 +517,57 @@
       }
     ];
 
+    // --- Points of Interest (POIs) ---
+    const pois = [
+      {
+        title: "Zombies Feast",
+        desc: "You stop and see several zombies feasting on a corpse.",
+        options: [
+          {choice: "Sneak by quietly", outcome: "sneak", response: "You sneak by, but your heart races.", effect: {energy: -4, loot: 1, danger: 0.2}},
+          {choice: "Attack the zombies", outcome: "attack", response: "You attack! The zombies turn on you.", effect: {enemy: true}},
+          {choice: "Search the corpse for supplies", outcome: "loot", response: "You quickly search and grab something.", effect: {loot: 1, danger: 0.4}},
+          {choice: "Ignore and move on", outcome: "ignore", response: "You decide not to risk it.", effect: {}}
+        ]
+      },
+      {
+        title: "Barricaded Shop",
+        desc: "A small shop is barricaded. You hear noises inside.",
+        options: [
+          {choice: "Knock and call out", outcome: "survivor", response: "Someone answers from within!", effect: {survivor: true}},
+          {choice: "Break down the door", outcome: "breakin", response: "You break in and trigger an alarm!", effect: {loot: 2, danger: 0.5}},
+          {choice: "Leave it alone", outcome: "leave", response: "Best not to draw attention.", effect: {}}
+        ]
+      },
+      {
+        title: "Crashed Ambulance",
+        desc: "You spot a crashed ambulance, doors ajar.",
+        options: [
+          {choice: "Search for medical supplies", outcome: "medloot", response: "You find a medkit!", effect: {medkits: 1, loot: 1, danger: 0.3}},
+          {choice: "Check for survivors", outcome: "medsurvivor", response: "A wounded survivor is inside.", effect: {survivor: true}},
+          {choice: "Leave quickly", outcome: "leave", response: "You don't risk it.", effect: {}}
+        ]
+      },
+      {
+        title: "Trap in Alley",
+        desc: "Tripwire and cans rattle. Someone set a trap here.",
+        options: [
+          {choice: "Carefully disable the trap", outcome: "disable", response: "You disable it and find some loot.", effect: {loot: 1}},
+          {choice: "Ignore and walk away", outcome: "ignore", response: "You avoid the trap.", effect: {}},
+          {choice: "Rush through", outcome: "rush", response: "You set off the trap! Ouch.", effect: {damage: 12}}
+        ]
+      },
+      {
+        title: "Supply Drop",
+        desc: "A parachute flutters nearby. Someone dropped supplies recently.",
+        options: [
+          {choice: "Search the crate", outcome: "search", response: "You find rare supplies!", effect: {loot: 2}},
+          {choice: "Ambush anyone approaching", outcome: "ambush", response: "You wait, but only zombies show up.", effect: {enemy: true}},
+          {choice: "Ignore", outcome: "ignore", response: "You move on.", effect: {}}
+        ]
+      },
+      // Add more POIs as desired...
+    ];
+
     // --- Game State ---
     let player = {};
     let enemy = null;
@@ -498,8 +576,8 @@
     let gameOverMsg = "";
     let survivor = null;
     let survivorDialogueStep = 0;
+    let poi = null;
 
-    // --- Utility Functions ---
     function roll(prob) { return Math.random() < prob; }
     function randint(min, max) { return Math.floor(Math.random() * (max-min+1))+min; }
     function cap(val, max) { return Math.min(val, max); }
@@ -597,8 +675,7 @@
     function updateActions() {
       const actions = document.getElementById("actions");
       actions.innerHTML = "";
-      if (gameOverMsg || survivor) return;
-      // If fighting
+      if (gameOverMsg || survivor || poi) return;
       if (enemy) {
         actions.innerHTML += `<button class="action-btn" onclick="playerAttack()">Attack</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="playerHeal()">Heal (${player.medkits} medkit${player.medkits!==1?'s':''})</button>`;
@@ -609,6 +686,7 @@
         actions.innerHTML += `<button class="action-btn" onclick="rest()">Rest</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="moveZone()">Move to next zone</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="eatFood()">Eat food (${player.food})</button>`;
+        actions.innerHTML += `<div style="color:#ffd574;font-size:1.09em;margin-top:0.3em;">Loots needed in this zone: <b>${zoneLootReq[player.zone] - player.zoneLoots[player.zone]}</b></div>`;
       }
     }
 
@@ -628,7 +706,146 @@
       `;
     }
 
-    // --- Game Mechanics ---
+    function updatePOI() {
+      const poiDiv = document.getElementById("poi");
+      if (!poi) { poiDiv.innerHTML = ""; return; }
+      poiDiv.innerHTML = `
+        <div class="survivor-card">
+          <div style="font-size:1.15em;color:#ffd574;">${poi.title}</div>
+          <div style="color:#fff;margin-bottom:0.7em;">${poi.desc}</div>
+          ${poi.options.map((opt, idx) =>
+            `<button class="dialogue-option" onclick="choosePOI(${idx})">${opt.choice}</button>`
+          ).join("")}
+        </div>
+      `;
+    }
+
+    window.choosePOI = function(idx) {
+      const opt = poi.options[idx];
+      log.push(`<span style="color:#ffd574;">Event:</span> ${opt.response}`);
+      if (opt.effect.energy) player.energy = Math.max(0, player.energy + opt.effect.energy);
+      if (opt.effect.loot) gainLoot(opt.effect.loot);
+      if (opt.effect.enemy) {
+        const zone = zones[player.zone];
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`A wild ${enemy.type} appears!`);
+      }
+      if (opt.effect.survivor) {
+        triggerSurvivorEncounter();
+        poi = null;
+        updatePOI();
+        updateAll();
+        return;
+      }
+      if (opt.effect.medkits) player.medkits += opt.effect.medkits;
+      if (opt.effect.damage) {
+        player.health -= opt.effect.damage;
+        log.push("You take damage!");
+        if (player.health <= 0) { player.health=0; player.alive=false; endGame(); }
+      }
+      if (opt.effect.danger && roll(opt.effect.danger)) {
+        const zone = zones[player.zone];
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`Danger! A ${enemy.type} attacks!`);
+      }
+      poi = null;
+      updatePOI();
+      updateAll();
+    };
+
+    function gainLoot(n=1) {
+      for (let i=0;i<n;i++) {
+        player.zoneLoots[player.zone]++;
+        const zone = zones[player.zone];
+        let loot = zone.lootTable[randint(0,zone.lootTable.length-1)];
+        log.push(`You found <span style="color:#ffd574;">${loot}</span>!`);
+        if (loot === "Medkit") player.medkits++;
+        else if (loot === "Food") player.food++;
+        else player.inventory.push(loot);
+      }
+    }
+
+    window.searchLoot = function() {
+      const zone = zones[player.zone];
+      player.turns++;
+      if (roll(0.12 + player.level*0.01)) {
+        triggerSurvivorEncounter();
+        updateAll();
+        return;
+      }
+      if (roll(0.18 + player.level*0.015)) {
+        poi = pois[randint(0, pois.length-1)];
+        updatePOI();
+        updateActions();
+        return;
+      }
+      if (roll(zone.lootChance)) {
+        gainLoot(1);
+      } else {
+        log.push("No loot found.");
+      }
+      if (roll(zone.encounterChance)) {
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`A wild ${enemy.type} appears!`);
+      }
+      updateAll();
+    };
+
+    window.moveZone = function() {
+      if (player.zoneLoots[player.zone] < zoneLootReq[player.zone]) {
+        log.push(`You need to loot ${zoneLootReq[player.zone] - player.zoneLoots[player.zone]} more times before moving to the next zone.`);
+        updateAll();
+        return;
+      }
+      if (player.zone < zones.length-1) {
+        player.zone++;
+        log.push(`You move to: <span style="color:#ffd574;">${zones[player.zone].name}</span>`);
+        player.energy = Math.max(5, player.energy-10);
+        player.zoneLoots[player.zone] = player.zoneLoots[player.zone] || 0;
+        const zone = zones[player.zone];
+        if (roll(zone.encounterChance-0.15)) {
+          const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+          enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+          log.push(`A ${enemy.type} ambushes you!`);
+        }
+        updateAll();
+      } else {
+        log.push("You are at the last zone (Safe House). Rest and heal!");
+        updateAll();
+      }
+    };
+
+    window.rest = function() {
+      player.turns++;
+      let restHeal = randint(12,21) + player.level*2;
+      let restEnergy = randint(8,18) + player.level;
+      player.health = cap(player.health+restHeal, player.maxHealth);
+      player.energy = cap(player.energy+restEnergy, player.maxEnergy);
+      log.push(`You rest and recover ${restHeal} HP and ${restEnergy} energy.`);
+      const zone = zones[player.zone];
+      if (roll(zone.encounterChance-0.25)) {
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`A ${enemy.type} attacks during your rest!`);
+      }
+      updateAll();
+    };
+
+    window.eatFood = function() {
+      if (player.food > 0) {
+        player.food--;
+        let energy = foodItems["Food"].energy + randint(-3,3);
+        player.energy = cap(player.energy+energy, player.maxEnergy);
+        log.push(`You eat some food and gain ${energy} energy.`);
+      } else {
+        log.push("No food to eat.");
+      }
+      updateAll();
+    };
+
     window.playerAttack = function() {
       if (!player.alive || !enemy) return;
       const weaponStats = weapons[player.weapon] || weapons["Knife"];
@@ -691,7 +908,6 @@
 
     window.playerDodge = function() {
       if (!enemy) return;
-      // Dodge chance: higher with more energy, higher crit weapons, higher level
       let dodgeChance = 0.40 + (player.energy/player.maxEnergy)*0.25 + (weapons[player.weapon]?.crit||0)*0.2 + player.level*0.01;
       if (roll(dodgeChance)) {
         log.push("You dodge the enemy's attack and avoid all damage!");
@@ -699,82 +915,7 @@
         log.push("Dodge failed.");
         enemyAttack();
       }
-      // Dodging costs energy
       player.energy = Math.max(0, player.energy-8);
-      updateAll();
-    };
-
-    window.searchLoot = function() {
-      const zone = zones[player.zone];
-      player.turns++;
-      // Survivor encounter chance
-      if (roll(0.14 + player.level*0.01)) {
-        triggerSurvivorEncounter();
-        return;
-      }
-      if (roll(zone.lootChance)) {
-        let loot = zone.lootTable[randint(0,zone.lootTable.length-1)];
-        log.push(`You found <span style="color:#ffd574;">${loot}</span>!`);
-        if (loot === "Medkit") player.medkits++;
-        else if (loot === "Food") player.food++;
-        else player.inventory.push(loot);
-      } else {
-        log.push("No loot found.");
-      }
-      // Encounter check
-      if (roll(zone.encounterChance)) {
-        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
-        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
-        log.push(`A wild ${enemy.type} appears!`);
-      }
-      updateAll();
-    };
-
-    window.rest = function() {
-      player.turns++;
-      let restHeal = randint(12,21) + player.level*2;
-      let restEnergy = randint(8,18) + player.level;
-      player.health = cap(player.health+restHeal, player.maxHealth);
-      player.energy = cap(player.energy+restEnergy, player.maxEnergy);
-      log.push(`You rest and recover ${restHeal} HP and ${restEnergy} energy.`);
-      // Chance of encounter
-      const zone = zones[player.zone];
-      if (roll(zone.encounterChance-0.25)) {
-        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
-        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
-        log.push(`A ${enemy.type} attacks during your rest!`);
-      }
-      updateAll();
-    };
-
-    window.moveZone = function() {
-      if (player.zone < zones.length-1) {
-        player.zone++;
-        log.push(`You move to: <span style="color:#ffd574;">${zones[player.zone].name}</span>`);
-        player.energy = Math.max(5, player.energy-10);
-        // Chance of instant encounter
-        const zone = zones[player.zone];
-        if (roll(zone.encounterChance-0.15)) {
-          const eData = zone.enemies[randint(0,zone.enemies.length-1)];
-          enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
-          log.push(`A ${enemy.type} ambushes you!`);
-        }
-        updateAll();
-      } else {
-        log.push("You are at the last zone (Safe House). Rest and heal!");
-        updateAll();
-      }
-    };
-
-    window.eatFood = function() {
-      if (player.food > 0) {
-        player.food--;
-        let energy = foodItems["Food"].energy + randint(-3,3);
-        player.energy = cap(player.energy+energy, player.maxEnergy);
-        log.push(`You eat some food and gain ${energy} energy.`);
-      } else {
-        log.push("No food to eat.");
-      }
       updateAll();
     };
 
@@ -802,7 +943,6 @@
       startGame();
     };
 
-    // --- Equip Item ---
     window.equipItem = function(name) {
       if (!weapons[name]) return;
       player.weapon = name;
@@ -831,7 +971,6 @@
       document.getElementById('modal').style.display = 'none';
     };
 
-    // --- Survivor Encounters ---
     function triggerSurvivorEncounter() {
       survivorDialogueStep = 0;
       survivor = survivors[randint(0, survivors.length-1)];
@@ -843,7 +982,6 @@
       const dialogueObj = survivor.dialogues[survivorDialogueStep];
       const opt = dialogueObj.options[idx];
       log.push(`<span style="color:#ffd574;">${survivor.name}</span>: ${opt.response}`);
-      // Outcomes
       if (opt.effect) {
         if (opt.effect.heal) player.health = cap(player.health+opt.effect.heal, player.maxHealth);
         if (opt.effect.medkits) player.medkits += opt.effect.medkits;
@@ -866,20 +1004,19 @@
       updateAll();
     };
 
-    // --- Main Update ---
     function updateAll() {
       updateStats();
       updateZone();
       updateInventory();
       updateEnemy();
       updateSurvivor();
+      updatePOI();
       updateActions();
       updateLog();
       updateLevelUp();
       updateGameOver();
     }
 
-    // --- Game Start ---
     function startGame() {
       player = JSON.parse(JSON.stringify(playerBase));
       enemy = null;
@@ -887,12 +1024,12 @@
       levelUpMsg = "";
       gameOverMsg = "";
       survivor = null;
+      poi = null;
       updateAll();
     }
 
     startGame();
 
-    // Expose for inline onClick
     window.playerAttack = playerAttack;
     window.playerHeal = playerHeal;
     window.playerRun = playerRun;
@@ -906,19 +1043,7 @@
     window.closeModal = closeModal;
     window.chooseDialogue = chooseDialogue;
     window.restartGame = restartGame;
-
-    // Background music auto-play (after user click/keypress)
-    window.addEventListener('DOMContentLoaded', () => {
-      const audio = document.getElementById('bg-music');
-      function tryPlay() {
-        audio.volume = 0.2;
-        audio.play().catch(()=>{});
-        window.removeEventListener('click', tryPlay);
-        window.removeEventListener('keydown', tryPlay);
-      }
-      window.addEventListener('click', tryPlay);
-      window.addEventListener('keydown', tryPlay);
-    });
+    window.choosePOI = choosePOI;
   </script>
 </body>
 </html>
