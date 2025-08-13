@@ -17,6 +17,7 @@
       --xp: #2980b9;
       --danger: #e74c3c;
       --safe: #27ae60;
+      --modalbg: #22243acc;
     }
     body {
       background: var(--bg);
@@ -164,6 +165,31 @@
       font-size: 1em;
       margin-bottom: 0;
       margin-top: 0.2em;
+      padding-left: 0;
+    }
+    .inventory-list li {
+      margin-bottom: 0.2em;
+      margin-top: 0.2em;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+    }
+    .inv-btn {
+      background: #292c3c;
+      color: #ffd574;
+      border: none;
+      border-radius: 5px;
+      padding: 0.15em 0.9em;
+      font-size: 0.93em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 0.2em;
+      margin-right: 0.2em;
+      transition: background 0.16s, color 0.16s;
+    }
+    .inv-btn.active, .inv-btn:active {
+      background: #ffd574;
+      color: #191c26;
     }
     .enemy-card {
       background: #e74c3c28;
@@ -219,26 +245,108 @@
       box-shadow: 0 2px 16px #27ae6044;
       margin-bottom: 1em;
     }
+    /* Modal styles */
+    .modal-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--modalbg);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #292c3c;
+      border-radius: 13px;
+      padding: 2em 1.5em;
+      box-shadow: 0 6px 38px #191c2640;
+      color: var(--txt);
+      min-width: 220px;
+      max-width: 340px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content h3 {
+      color: var(--accent);
+      font-size: 1.2em;
+      margin-top: 0;
+      margin-bottom: 0.7em;
+    }
+    .modal-content .close-btn {
+      position: absolute;
+      top: 0.8em; right: 0.8em;
+      background: #22243a;
+      color: #ffd574;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.15em;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.1em 0.55em;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-content .close-btn:hover { background: #ffd574; color: #22243a;}
+    /* Survivor dialogue styles */
+    .survivor-card {
+      background: #2980b950;
+      border-radius: 11px;
+      margin: 0.7em 0 1em 0;
+      padding: 1.2em 1em;
+      color: #ffd574;
+      font-weight: 700;
+      box-shadow: 0 1px 8px #2980b933;
+      font-size: 1.07em;
+      text-align: left;
+      position: relative;
+      z-index: 97;
+    }
+    .survivor-dialogue {
+      margin-top: 1em;
+      margin-bottom: 0.7em;
+    }
+    .dialogue-option {
+      background: #ffd574;
+      color: #191c26;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1em;
+      margin: 0.5em 0.2em 0.5em 0;
+      padding: 0.6em 1em;
+      cursor: pointer;
+      transition: background 0.16s, color 0.16s;
+      box-shadow: 0 2px 8px #ffd57422;
+      display: block;
+      width: 100%;
+      text-align: left;
+    }
+    .dialogue-option:hover {
+      background: #f38020;
+      color: #fff;
+    }
     @media (max-width: 650px) {
       .container { padding: 1em 0.3em 2em 0.3em; }
       h1 { font-size: 1.4em; }
       .stat-card { min-width: 88px; padding: 0.5em 0.5em;}
       .zone { padding: 0.7em 0.4em;}
+      .modal-content { padding:1.1em 0.6em; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Zombie Survival RPG</h1>
-    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, heal, and level up!</div>
+    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, heal, dodge, talk, and level up!</div>
     <div id="stats"></div>
     <div id="zone"></div>
     <div id="enemy"></div>
+    <div id="survivor"></div>
     <div class="actions" id="actions"></div>
     <div class="log" id="log"></div>
     <div class="inventory" id="inventory"></div>
     <div id="levelup"></div>
     <div id="gameover"></div>
+    <div id="modal" style="display:none;"></div>
   </div>
   <script>
     // --- Game Data ---
@@ -324,11 +432,11 @@
     ];
 
     const weapons = {
-      "Knife": {atk: 15, crit: 0.10},
-      "Pistol": {atk: 22, crit: 0.17},
-      "Shotgun": {atk: 32, crit: 0.24},
-      "Rifle": {atk: 40, crit: 0.30},
-      "Grenade": {atk: 65, crit: 0.0}
+      "Knife": {atk: 15, crit: 0.10, desc: "Basic melee weapon. Fast, but low damage."},
+      "Pistol": {atk: 22, crit: 0.17, desc: "Reliable ranged weapon. Moderate damage and crit."},
+      "Shotgun": {atk: 32, crit: 0.24, desc: "Powerful short-range weapon. High damage, high crit."},
+      "Rifle": {atk: 40, crit: 0.30, desc: "Long-range, high-damage weapon. High crit chance."},
+      "Grenade": {atk: 65, crit: 0.0, desc: "Explosive weapon. Single-use. Massive damage, no crit."}
     };
 
     const foodItems = {
@@ -336,12 +444,59 @@
       "Energy Drink": {energy: 35, heal: 0}
     };
 
+    const survivors = [
+      {
+        name: "Sarah the Medic",
+        desc: "A cautious medic searching for supplies.",
+        dialogues: [
+          {
+            text: "She nervously greets you. 'Who are you? What do you want?'",
+            options: [
+              {choice: "I'm friendly. Need help?", outcome: "heal", response: "Sarah smiles and gives you a medkit.", effect: {medkits: +1}},
+              {choice: "Hand over your supplies.", outcome: "attack", response: "Sarah fights back and flees. You take damage.", effect: {damage: 15}},
+              {choice: "Let's team up.", outcome: "ally", response: "Sarah joins you for a few turns and heals you.", effect: {heal: 20}},
+            ]
+          }
+        ]
+      },
+      {
+        name: "Mike the Scavenger",
+        desc: "A tough scavenger, armed and wary.",
+        dialogues: [
+          {
+            text: "He raises his weapon. 'Stay back! Are you infected?'",
+            options: [
+              {choice: "No, just passing through.", outcome: "trade", response: "Mike trades you a random item.", effect: "trade"},
+              {choice: "Lower your weapon.", outcome: "attack", response: "Mike shoots at you and escapes.", effect: {damage: 20}},
+              {choice: "Want to share supplies?", outcome: "share", response: "Mike shares some food.", effect: {food: +1}},
+            ]
+          }
+        ]
+      },
+      {
+        name: "Emma the Survivor",
+        desc: "She looks scared and desperate.",
+        dialogues: [
+          {
+            text: "She pleads, 'Do you have any food? Please?'",
+            options: [
+              {choice: "Give food.", outcome: "give", response: "Emma thanks you and gives you a medkit.", effect: {medkits: +1, food: -1}},
+              {choice: "Ignore her.", outcome: "sad", response: "Emma runs away, nothing happens.", effect: {}},
+              {choice: "Threaten her.", outcome: "attack", response: "Emma panics and throws a rock at you. You lose health.", effect: {damage: 10}},
+            ]
+          }
+        ]
+      }
+    ];
+
     // --- Game State ---
     let player = {};
     let enemy = null;
     let log = [];
     let levelUpMsg = "";
     let gameOverMsg = "";
+    let survivor = null;
+    let survivorDialogueStep = 0;
 
     // --- Utility Functions ---
     function roll(prob) { return Math.random() < prob; }
@@ -399,9 +554,14 @@
     function updateInventory() {
       let items = {};
       player.inventory.forEach(i => items[i] = (items[i]||0)+1);
-      let invList = Object.entries(items).map(([name, cnt]) => 
-        `<li>${name} <span style="color:#ffd574;">x${cnt}</span></li>`
-      ).join("");
+      let invList = Object.entries(items).map(([name, cnt]) => {
+        let isWeapon = weapons[name];
+        let equipBtn = isWeapon
+          ? `<button class="inv-btn${player.weapon===name?' active':''}" onclick="equipItem('${name}')">${player.weapon===name?'Equipped':'Equip'}</button>
+             <button class="inv-btn" onclick="showWeaponInfo('${name}')">Info</button>`
+          : '';
+        return `<li>${name} <span style="color:#ffd574;">x${cnt}</span> ${equipBtn}</li>`;
+      }).join("");
       document.getElementById("inventory").innerHTML = `
         <div class="inventory-title">Inventory</div>
         <ul class="inventory-list">${invList || "<li>(empty)</li>"}</ul>
@@ -436,18 +596,35 @@
     function updateActions() {
       const actions = document.getElementById("actions");
       actions.innerHTML = "";
-      if (gameOverMsg) return;
+      if (gameOverMsg || survivor) return;
       // If fighting
       if (enemy) {
         actions.innerHTML += `<button class="action-btn" onclick="playerAttack()">Attack</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="playerHeal()">Heal (${player.medkits} medkit${player.medkits!==1?'s':''})</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="playerRun()">Run</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="playerDodge()">Dodge</button>`;
       } else {
         actions.innerHTML += `<button class="action-btn" onclick="searchLoot()">Search for loot</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="rest()">Rest</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="moveZone()">Move to next zone</button>`;
         actions.innerHTML += `<button class="action-btn" onclick="eatFood()">Eat food (${player.food})</button>`;
       }
+    }
+
+    function updateSurvivor() {
+      const survivorDiv = document.getElementById("survivor");
+      if (!survivor) { survivorDiv.innerHTML = ""; return; }
+      const dialogueObj = survivor.dialogues[survivorDialogueStep];
+      survivorDiv.innerHTML = `
+        <div class="survivor-card">
+          <div style="font-size:1.15em;color:#ffd574;">${survivor.name}</div>
+          <div style="color:#fff;margin-bottom:0.7em;">${survivor.desc}</div>
+          <div class="survivor-dialogue">${dialogueObj.text}</div>
+          ${dialogueObj.options.map((opt, idx) =>
+            `<button class="dialogue-option" onclick="chooseDialogue(${idx})">${opt.choice}</button>`
+          ).join("")}
+        </div>
+      `;
     }
 
     // --- Game Mechanics ---
@@ -511,9 +688,29 @@
       updateAll();
     };
 
+    window.playerDodge = function() {
+      if (!enemy) return;
+      // Dodge chance: higher with more energy, higher crit weapons, higher level
+      let dodgeChance = 0.40 + (player.energy/player.maxEnergy)*0.25 + (weapons[player.weapon]?.crit||0)*0.2 + player.level*0.01;
+      if (roll(dodgeChance)) {
+        log.push("You dodge the enemy's attack and avoid all damage!");
+      } else {
+        log.push("Dodge failed.");
+        enemyAttack();
+      }
+      // Dodging costs energy
+      player.energy = Math.max(0, player.energy-8);
+      updateAll();
+    };
+
     window.searchLoot = function() {
       const zone = zones[player.zone];
       player.turns++;
+      // Survivor encounter chance
+      if (roll(0.14 + player.level*0.01)) {
+        triggerSurvivorEncounter();
+        return;
+      }
       if (roll(zone.lootChance)) {
         let loot = zone.lootTable[randint(0,zone.lootTable.length-1)];
         log.push(`You found <span style="color:#ffd574;">${loot}</span>!`);
@@ -604,12 +801,77 @@
       startGame();
     };
 
+    // --- Equip Item ---
+    window.equipItem = function(name) {
+      if (!weapons[name]) return;
+      player.weapon = name;
+      log.push(`You equipped <span style="color:#ffd574;">${name}</span>.`);
+      updateAll();
+    };
+
+    window.showWeaponInfo = function(name) {
+      const stats = weapons[name];
+      if (!stats) return;
+      showModal(`
+        <h3>${name} Info</h3>
+        <div style="font-size:1.05em;margin:0.7em 0;">${stats.desc}</div>
+        <div style="color:#ffd574;font-size:1.09em;font-weight:700;">Attack: ${stats.atk}<br>Crit Chance: ${Math.round(stats.crit*100)}%</div>
+        <button class="close-btn" onclick="closeModal()">✕</button>
+      `);
+    };
+
+    function showModal(content) {
+      const modal = document.getElementById('modal');
+      modal.innerHTML = `<div class="modal-bg" onclick="closeModal()"><div class="modal-content" onclick="event.stopPropagation();">${content}</div></div>`;
+      modal.style.display = '';
+    }
+    window.closeModal = function() {
+      document.getElementById('modal').innerHTML = '';
+      document.getElementById('modal').style.display = 'none';
+    };
+
+    // --- Survivor Encounters ---
+    function triggerSurvivorEncounter() {
+      survivorDialogueStep = 0;
+      survivor = survivors[randint(0, survivors.length-1)];
+      updateSurvivor();
+      updateActions();
+    }
+
+    window.chooseDialogue = function(idx) {
+      const dialogueObj = survivor.dialogues[survivorDialogueStep];
+      const opt = dialogueObj.options[idx];
+      log.push(`<span style="color:#ffd574;">${survivor.name}</span>: ${opt.response}`);
+      // Outcomes
+      if (opt.effect) {
+        if (opt.effect.heal) player.health = cap(player.health+opt.effect.heal, player.maxHealth);
+        if (opt.effect.medkits) player.medkits += opt.effect.medkits;
+        if (opt.effect.food) player.food += opt.effect.food;
+        if (opt.effect.damage) {
+          player.health -= opt.effect.damage;
+          if (player.health <= 0) { player.health=0; player.alive=false; endGame(); }
+        }
+      }
+      if (opt.effect === "trade") {
+        const lootTable = zones[player.zone].lootTable;
+        let loot = lootTable[randint(0,lootTable.length-1)];
+        log.push(`${survivor.name} trades you <span style="color:#ffd574;">${loot}</span>.`);
+        if (loot === "Medkit") player.medkits++;
+        else if (loot === "Food") player.food++;
+        else player.inventory.push(loot);
+      }
+      survivor = null;
+      updateSurvivor();
+      updateAll();
+    };
+
     // --- Main Update ---
     function updateAll() {
       updateStats();
       updateZone();
       updateInventory();
       updateEnemy();
+      updateSurvivor();
       updateActions();
       updateLog();
       updateLevelUp();
@@ -623,6 +885,7 @@
       log = ["You awaken in a destroyed city, desperate to survive..."];
       levelUpMsg = "";
       gameOverMsg = "";
+      survivor = null;
       updateAll();
     }
 
@@ -632,10 +895,15 @@
     window.playerAttack = playerAttack;
     window.playerHeal = playerHeal;
     window.playerRun = playerRun;
+    window.playerDodge = playerDodge;
     window.searchLoot = searchLoot;
     window.rest = rest;
     window.moveZone = moveZone;
     window.eatFood = eatFood;
+    window.equipItem = equipItem;
+    window.showWeaponInfo = showWeaponInfo;
+    window.closeModal = closeModal;
+    window.chooseDialogue = chooseDialogue;
     window.restartGame = restartGame;
   </script>
 </body>
