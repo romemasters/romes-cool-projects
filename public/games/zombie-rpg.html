@@ -334,6 +334,7 @@
   </style>
 </head>
 <body>
+  <audio id="bg-music" src="/Pixel_Video_Game_-_NTRSLNC.mp3" loop></audio>
   <div class="container">
     <h1>Zombie Survival RPG</h1>
     <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, heal, dodge, talk, and level up!</div>
@@ -905,6 +906,19 @@
     window.closeModal = closeModal;
     window.chooseDialogue = chooseDialogue;
     window.restartGame = restartGame;
+
+    // Background music auto-play (after user click/keypress)
+    window.addEventListener('DOMContentLoaded', () => {
+      const audio = document.getElementById('bg-music');
+      function tryPlay() {
+        audio.volume = 0.2;
+        audio.play().catch(()=>{});
+        window.removeEventListener('click', tryPlay);
+        window.removeEventListener('keydown', tryPlay);
+      }
+      window.addEventListener('click', tryPlay);
+      window.addEventListener('keydown', tryPlay);
+    });
   </script>
 </body>
 </html>
