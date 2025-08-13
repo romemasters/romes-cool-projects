@@ -5,7 +5,6 @@
   <title>Zombie Survival RPG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* --- Styles unchanged from previous version, keep your existing CSS --- */
     :root {
       --accent: #f38020;
       --accent2: #ffb47e;
@@ -16,74 +15,119 @@
       --health: #e74c3c;
       --energy: #27ae60;
       --xp: #2980b9;
-      --danger: #e74c3c;
-      --safe: #27ae60;
       --modalbg: #22243acc;
+      --sidebar-width: 290px;
+      --header-height: 64px;
     }
-    body {
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
       background: var(--bg);
       color: var(--txt);
       font-family: 'Inter', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       min-height: 100vh;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
-    .container {
-      max-width: 550px;
-      margin: 0 auto;
+    .header {
+      height: var(--header-height);
+      min-height: var(--header-height);
       background: var(--panel);
-      border-radius: 16px;
-      box-shadow: 0 4px 28px #191c2640;
-      padding: 2em 1.2em 3em 1.2em;
-      margin-top: 40px;
-      margin-bottom: 40px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2em;
-      font-weight: 900;
-      margin-bottom: 0.25em;
       color: var(--accent);
-      letter-spacing: 1.3px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2em 0 1.7em;
+      font-size: 1.2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 18px #191c2640;
+      z-index: 40;
     }
-    .subtitle {
-      text-align: center;
+    .header-title {
+      font-size: 1.25em;
+      font-weight: 900;
+      letter-spacing: 1.3px;
+      color: var(--accent);
+      margin-right: 1em;
+    }
+    .music-btn {
+      background: #292c3c;
+      color: #ffd574;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1em;
+      margin-left: 1em;
+      transition: background 0.13s, color 0.13s;
+    }
+    .music-btn:hover { background: #ffd574; color: #191c26; }
+    .main-layout {
+      flex: 1;
+      height: calc(100vh - var(--header-height));
+      display: flex;
+      width: 100vw;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--panel);
+      color: var(--txt);
+      display: flex;
+      flex-direction: column;
+      padding: 2em 1em 1em 1em;
+      box-shadow: 2px 0 16px #191c2610;
+      z-index: 30;
+      gap: 1.3em;
+    }
+    .sidebar .section-title {
       color: var(--accent2);
-      font-size: 1.09em;
-      margin-bottom: 2em;
+      font-size: 1.07em;
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      letter-spacing: 0.7px;
     }
     .stats-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 1.1em;
-      margin-bottom: 1.1em;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.7em;
+      margin-bottom: 0.7em;
     }
     .stat-card {
       background: var(--card);
       border-radius: 8px;
-      padding: 0.7em 1.1em;
-      min-width: 110px;
+      padding: 0.55em 0.7em;
       text-align: center;
       box-shadow: 0 2px 8px #292c3c15;
-      margin-bottom: 0.4em;
     }
     .stat-label {
       color: #aaa;
-      font-size: 0.93em;
+      font-size: 0.85em;
       letter-spacing: 0.1px;
     }
     .stat-value {
       font-weight: 800;
-      font-size: 1.18em;
+      font-size: 1.12em;
       color: var(--txt);
-      margin-top: 0.2em;
+      margin-top: 0.13em;
     }
     .bar {
-      height: 9px;
+      height: 7px;
       border-radius: 4px;
-      margin-top: 0.3em;
-      margin-bottom: -0.25em;
+      margin-top: 0.17em;
+      margin-bottom: -0.13em;
       background: #222;
       width: 100%;
       overflow: hidden;
@@ -92,13 +136,97 @@
     .health-bar { background: var(--health); }
     .energy-bar { background: var(--energy); }
     .xp-bar { background: var(--xp); }
-    .zone {
-      background: var(--card);
-      border-radius: 10px;
-      padding: 1.1em 1em;
-      box-shadow: 0 2px 12px #191c2615;
-      margin-bottom: 1em;
+    .sidebar .inventory-section {
+      margin-top: 1.2em;
+    }
+    .inventory-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.97em;
+    }
+    .inventory-list li {
+      margin-bottom: 0.18em;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .inv-btn {
+      background: #292c3c;
+      color: #ffd574;
+      border: none;
+      border-radius: 5px;
+      padding: 0.1em 0.7em;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 0.2em;
+      margin-right: 0.2em;
+      transition: background 0.16s, color 0.16s;
+    }
+    .inv-btn.active, .inv-btn:active {
+      background: #ffd574;
+      color: #191c26;
+    }
+    .sidebar .misc-info {
+      color: #aaa;
+      font-size: 0.91em;
       margin-top: 0.7em;
+      margin-bottom: 0.5em;
+    }
+    .sidebar .future-panel {
+      background: #191c26;
+      border-radius: 8px;
+      color: #ffd574;
+      font-size: 0.97em;
+      padding: 0.8em 0.8em;
+      margin-top: 1.5em;
+      text-align: center;
+      opacity: 0.7;
+    }
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+      align-items: stretch;
+      height: 100%;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0 2.5vw 0 2vw;
+      position: relative;
+    }
+    .game-log {
+      flex: 1;
+      min-height: 60px;
+      max-height: 26vh;
+      overflow-y: auto;
+      background: #191c26;
+      border-radius: 8px;
+      padding: 0.8em 0.7em;
+      color: #ffb47e;
+      font-size: 1.01em;
+      box-shadow: 0 1px 8px #292c3c10;
+      margin-bottom: 1.2em;
+      margin-top: 0.6em;
+      word-break: break-word;
+    }
+    .game-content {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1em;
+      min-height: 0;
+    }
+    .zone, .enemy-card, .survivor-card, .future-card {
+      background: var(--card);
+      border-radius: 11px;
+      padding: 1.2em 1em;
+      box-shadow: 0 2px 12px #191c2615;
+      margin-bottom: 0.6em;
+      margin-top: 0.7em;
+      font-size: 1.07em;
+      position: relative;
     }
     .zone-title {
       font-size: 1.13em;
@@ -110,6 +238,19 @@
       color: #ccc;
       font-size: 1em;
       margin-bottom: 0.7em;
+    }
+    .enemy-card {
+      background: #e74c3c28;
+      color: #f38020;
+      font-weight: 700;
+      box-shadow: 0 1px 8px #e74c3c25;
+    }
+    .enemy-hp-bar {
+      background: var(--health);
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 0.3em;
+      width: 100%;
     }
     .actions {
       display: flex;
@@ -134,80 +275,47 @@
       background: linear-gradient(90deg, #ffb47e 60%, #f38020 95%);
       color: #191c26;
     }
-    .log {
-      background: #191c26;
-      border-radius: 8px;
-      padding: 1em 0.7em;
-      font-size: 1.01em;
-      color: #ffb47e;
-      min-height: 70px;
-      margin-bottom: 1.4em;
-      margin-top: 1em;
-      box-shadow: 0 1px 8px #292c3c10;
-      word-break: break-word;
-      max-height: 120px;
-      overflow-y: auto;
-    }
-    .inventory {
-      background: #191c26;
-      border-radius: 8px;
-      padding: 0.8em 0.7em;
-      margin-bottom: 1.2em;
-      box-shadow: 0 1px 8px #292c3c10;
-    }
-    .inventory-title {
-      color: var(--accent2);
-      font-weight: 700;
-      margin-bottom: 0.6em;
-      font-size: 1.13em;
-    }
-    .inventory-list {
-      color: #eee;
-      font-size: 1em;
-      margin-bottom: 0;
-      margin-top: 0.2em;
-      padding-left: 0;
-    }
-    .inventory-list li {
-      margin-bottom: 0.2em;
-      margin-top: 0.2em;
-      display: flex;
-      align-items: center;
-      gap: 0.6em;
-    }
-    .inv-btn {
-      background: #292c3c;
+    .survivor-card, .future-card {
+      background: #2980b950;
       color: #ffd574;
-      border: none;
-      border-radius: 5px;
-      padding: 0.15em 0.9em;
-      font-size: 0.93em;
-      font-weight: 600;
-      cursor: pointer;
-      margin-left: 0.2em;
-      margin-right: 0.2em;
-      transition: background 0.16s, color 0.16s;
+      font-weight: 700;
+      box-shadow: 0 1px 8px #2980b933;
+      font-size: 1.07em;
+      text-align: left;
+      position: relative;
+      z-index: 97;
     }
-    .inv-btn.active, .inv-btn:active {
+    .survivor-card .dialogue-option, .future-card .dialogue-option {
       background: #ffd574;
       color: #191c26;
-    }
-    .enemy-card {
-      background: #e74c3c28;
-      border-radius: 7px;
-      margin: 0.7em 0 1em 0;
-      padding: 0.7em 1em;
-      color: #f38020;
+      border: none;
+      border-radius: 8px;
       font-weight: 700;
-      box-shadow: 0 1px 8px #e74c3c25;
-      font-size: 1.03em;
-    }
-    .enemy-hp-bar {
-      background: var(--health);
-      height: 8px;
-      border-radius: 4px;
-      margin-top: 0.3em;
+      font-size: 1em;
+      margin: 0.5em 0.2em 0.5em 0;
+      padding: 0.6em 1em;
+      cursor: pointer;
+      transition: background 0.16s, color 0.16s;
+      box-shadow: 0 2px 8px #ffd57422;
+      display: block;
       width: 100%;
+      text-align: left;
+    }
+    .dialogue-option:hover {
+      background: #f38020;
+      color: #fff;
+    }
+    .level-up {
+      background: #27ae60;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.7em 1.1em;
+      text-align: center;
+      font-size: 1.18em;
+      margin-top: 1em;
+      font-weight: 700;
+      box-shadow: 0 2px 16px #27ae6044;
+      margin-bottom: 1em;
     }
     .game-over {
       background: #e74c3c;
@@ -219,6 +327,11 @@
       margin-top: 2em;
       font-weight: 800;
       box-shadow: 0 2px 16px #e74c3c44;
+      position: absolute;
+      left: 50%; top: 35%;
+      transform: translate(-50%, -35%);
+      z-index: 100;
+      min-width: 300px;
     }
     .restart-btn {
       margin-top: 1.2em;
@@ -234,18 +347,6 @@
       transition: background 0.16s, color 0.16s;
     }
     .restart-btn:active { background: #f38020; color: #fff;}
-    .level-up {
-      background: #27ae60;
-      color: #fff;
-      border-radius: 8px;
-      padding: 0.7em 1.1em;
-      text-align: center;
-      font-size: 1.18em;
-      margin-top: 1em;
-      font-weight: 700;
-      box-shadow: 0 2px 16px #27ae6044;
-      margin-bottom: 1em;
-    }
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -286,69 +387,57 @@
       transition: background 0.15s, color 0.15s;
     }
     .modal-content .close-btn:hover { background: #ffd574; color: #22243a;}
-    .survivor-card {
-      background: #2980b950;
-      border-radius: 11px;
-      margin: 0.7em 0 1em 0;
-      padding: 1.2em 1em;
-      color: #ffd574;
-      font-weight: 700;
-      box-shadow: 0 1px 8px #2980b933;
-      font-size: 1.07em;
-      text-align: left;
-      position: relative;
-      z-index: 97;
-    }
-    .survivor-dialogue {
-      margin-top: 1em;
-      margin-bottom: 0.7em;
-    }
-    .dialogue-option {
-      background: #ffd574;
-      color: #191c26;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1em;
-      margin: 0.5em 0.2em 0.5em 0;
-      padding: 0.6em 1em;
-      cursor: pointer;
-      transition: background 0.16s, color 0.16s;
-      box-shadow: 0 2px 8px #ffd57422;
-      display: block;
-      width: 100%;
-      text-align: left;
-    }
-    .dialogue-option:hover {
-      background: #f38020;
-      color: #fff;
+    @media (max-width: 900px) {
+      .main-layout { flex-direction: column; }
+      .sidebar { width:auto; min-width:unset; flex-direction:row; gap:2vw; padding:1.1em 2vw; }
+      .game-area { padding: 0 2vw 0 2vw; }
     }
     @media (max-width: 650px) {
-      .container { padding: 1em 0.3em 2em 0.3em; }
-      h1 { font-size: 1.4em; }
-      .stat-card { min-width: 88px; padding: 0.5em 0.5em;}
-      .zone { padding: 0.7em 0.4em;}
-      .modal-content { padding:1.1em 0.6em; }
+      .sidebar { flex-direction:column; gap: 0.6em; padding:0.7em 1vw; }
+      .header { padding: 0 0.8em 0 0.6em; font-size: 1em;}
+      .game-area { padding:0 0.3em; }
+      .game-over { min-width: 90vw;}
     }
   </style>
 </head>
 <body>
   <audio id="bg-music" src="/Pixel_Video_Game_-_NTRSLNC.mp3" loop></audio>
-  <button id="toggleMusicBtn" style="position:fixed;top:12px;right:14px;z-index:90;background:#292c3c;color:#ffd574;border:none;border-radius:8px;padding:0.4em 1em;cursor:pointer;font-weight:600;">🔊 Music</button>
-  <div class="container">
-    <h1>Zombie Survival RPG</h1>
-    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, dodge, talk, and level up!</div>
-    <div id="stats"></div>
-    <div id="zone"></div>
-    <div id="enemy"></div>
-    <div id="survivor"></div>
-    <div id="poi"></div>
-    <div class="actions" id="actions"></div>
-    <div class="log" id="log"></div>
-    <div class="inventory" id="inventory"></div>
-    <div id="levelup"></div>
-    <div id="gameover"></div>
-    <div id="modal" style="display:none;"></div>
+  <div class="header">
+    <span class="header-title">Zombie Survival RPG</span>
+    <button class="music-btn" id="toggleMusicBtn">🔊 Music</button>
+  </div>
+  <div class="main-layout">
+    <aside class="sidebar">
+      <div>
+        <div class="section-title">Stats</div>
+        <div id="stats"></div>
+      </div>
+      <div class="inventory-section">
+        <div class="section-title">Inventory</div>
+        <ul class="inventory-list" id="inventory"></ul>
+        <div class="misc-info" id="misc-info"></div>
+      </div>
+      <div class="future-panel">
+        <div>Future features:</div>
+        <div>• Upgrades</div>
+        <div>• Quest Log</div>
+        <div>• Map</div>
+        <div>• Allies</div>
+      </div>
+    </aside>
+    <section class="game-area">
+      <div class="game-content">
+        <div id="zone"></div>
+        <div id="enemy"></div>
+        <div id="survivor"></div>
+        <div id="poi"></div>
+        <div id="levelup"></div>
+        <div class="actions" id="actions"></div>
+      </div>
+      <div class="game-log" id="log"></div>
+      <div id="gameover"></div>
+      <div id="modal" style="display:none;"></div>
+    </section>
   </div>
   <script>
     // Music controls
@@ -397,7 +486,6 @@
       turns: 0,
       zoneLoots: [0,0,0,0,0]
     };
-    // Minimum loots needed per zone before moving forward
     const zoneLootReq = [10, 11, 12, 13, 5];
 
     const zones = [
@@ -517,7 +605,6 @@
       }
     ];
 
-    // --- Points of Interest (POIs) ---
     const pois = [
       {
         title: "Zombies Feast",
@@ -564,11 +651,9 @@
           {choice: "Ambush anyone approaching", outcome: "ambush", response: "You wait, but only zombies show up.", effect: {enemy: true}},
           {choice: "Ignore", outcome: "ignore", response: "You move on.", effect: {}}
         ]
-      },
-      // Add more POIs as desired...
+      }
     ];
 
-    // --- Game State ---
     let player = {};
     let enemy = null;
     let log = [];
@@ -600,32 +685,18 @@
             <div class="stat-value">${player.xp}/${player.xpNext}</div>
             <div class="bar"><div class="xp-bar" style="width:${(player.xp/player.xpNext)*100}%"></div></div>
           </div>
-        </div>
-        <div class="stats-row">
           <div class="stat-card">
             <div class="stat-label">Level</div>
             <div class="stat-value">${player.level}</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Weapon</div>
-            <div class="stat-value">${player.weapon}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Zone</div>
-            <div class="stat-value">${zones[player.zone].name}</div>
-          </div>
         </div>
-      `;
-    }
-
-    function updateZone() {
-      const zone = zones[player.zone];
-      document.getElementById("zone").innerHTML = `
-        <div class="zone">
-          <div class="zone-title">${zone.name}</div>
-          <div class="zone-desc">${zone.desc}</div>
-          <div><b>Loot chance:</b> ${Math.round(zone.lootChance*100)}%</div>
-          <div><b>Encounter chance:</b> ${Math.round(zone.encounterChance*100)}%</div>
+        <div class="stat-card">
+          <div class="stat-label">Weapon</div>
+          <div class="stat-value">${player.weapon}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Zone</div>
+          <div class="stat-value">${zones[player.zone].name}</div>
         </div>
       `;
     }
@@ -641,10 +712,20 @@
           : '';
         return `<li>${name} <span style="color:#ffd574;">x${cnt}</span> ${equipBtn}</li>`;
       }).join("");
-      document.getElementById("inventory").innerHTML = `
-        <div class="inventory-title">Inventory</div>
-        <ul class="inventory-list">${invList || "<li>(empty)</li>"}</ul>
-        <div style="color:#aaa;font-size:0.93em;">Medkits: ${player.medkits} | Food: ${player.food} | Zombies killed: ${player.zombiesKilled}</div>
+      document.getElementById("inventory").innerHTML = invList || "<li>(empty)</li>";
+      document.getElementById("misc-info").innerHTML =
+        `Medkits: ${player.medkits} | Food: ${player.food} | Zombies killed: ${player.zombiesKilled}`;
+    }
+
+    function updateZone() {
+      const zone = zones[player.zone];
+      document.getElementById("zone").innerHTML = `
+        <div class="zone">
+          <div class="zone-title">${zone.name}</div>
+          <div class="zone-desc">${zone.desc}</div>
+          <div><b>Loot chance:</b> ${Math.round(zone.lootChance*100)}%</div>
+          <div><b>Encounter chance:</b> ${Math.round(zone.encounterChance*100)}%</div>
+        </div>
       `;
     }
 
@@ -661,7 +742,7 @@
     }
 
     function updateLog() {
-      document.getElementById("log").innerHTML = log.slice(-6).map(msg => `<div>${msg}</div>`).join("");
+      document.getElementById("log").innerHTML = log.slice(-12).map(msg => `<div>${msg}</div>`).join("");
     }
 
     function updateLevelUp() {
@@ -710,7 +791,7 @@
       const poiDiv = document.getElementById("poi");
       if (!poi) { poiDiv.innerHTML = ""; return; }
       poiDiv.innerHTML = `
-        <div class="survivor-card">
+        <div class="future-card">
           <div style="font-size:1.15em;color:#ffd574;">${poi.title}</div>
           <div style="color:#fff;margin-bottom:0.7em;">${poi.desc}</div>
           ${poi.options.map((opt, idx) =>
