@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zombie Survival RPG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --accent: #f38020;
+      --accent2: #ffb47e;
+      --bg: #191c26;
+      --panel: #22243a;
+      --txt: #fff;
+      --card: #292c3c;
+      --health: #e74c3c;
+      --energy: #27ae60;
+      --xp: #2980b9;
+      --danger: #e74c3c;
+      --safe: #27ae60;
+    }
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 4px 28px #191c2640;
+      padding: 2em 1.2em 3em 1.2em;
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.2em;
+      font-weight: 900;
+      margin-bottom: 0.25em;
+      color: var(--accent);
+      letter-spacing: 1.3px;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--accent2);
+      font-size: 1.09em;
+      margin-bottom: 2em;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1.1em;
+      margin-bottom: 1.1em;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 0.7em 1.1em;
+      min-width: 110px;
+      text-align: center;
+      box-shadow: 0 2px 8px #292c3c15;
+      margin-bottom: 0.4em;
+    }
+    .stat-label {
+      color: #aaa;
+      font-size: 0.93em;
+      letter-spacing: 0.1px;
+    }
+    .stat-value {
+      font-weight: 800;
+      font-size: 1.18em;
+      color: var(--txt);
+      margin-top: 0.2em;
+    }
+    .bar {
+      height: 9px;
+      border-radius: 4px;
+      margin-top: 0.3em;
+      margin-bottom: -0.25em;
+      background: #222;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    .health-bar { background: var(--health); }
+    .energy-bar { background: var(--energy); }
+    .xp-bar { background: var(--xp); }
+    .zone {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 1.1em 1em;
+      box-shadow: 0 2px 12px #191c2615;
+      margin-bottom: 1em;
+      margin-top: 0.7em;
+    }
+    .zone-title {
+      font-size: 1.13em;
+      font-weight: 700;
+      color: var(--accent2);
+      margin-bottom: 0.3em;
+    }
+    .zone-desc {
+      color: #ccc;
+      font-size: 1em;
+      margin-bottom: 0.7em;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7em;
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+    .action-btn {
+      background: linear-gradient(90deg, var(--accent) 80%, var(--accent2) 100%);
+      color: var(--txt);
+      border: none;
+      border-radius: 7px;
+      padding: 0.8em 1.3em;
+      font-size: 1.08em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.16s, color 0.16s;
+      box-shadow: 0 2px 8px #f3802011;
+    }
+    .action-btn:active {
+      background: linear-gradient(90deg, #ffb47e 60%, #f38020 95%);
+      color: #191c26;
+    }
+    .log {
+      background: #191c26;
+      border-radius: 8px;
+      padding: 1em 0.7em;
+      font-size: 1.01em;
+      color: #ffb47e;
+      min-height: 70px;
+      margin-bottom: 1.4em;
+      margin-top: 1em;
+      box-shadow: 0 1px 8px #292c3c10;
+      word-break: break-word;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .inventory {
+      background: #191c26;
+      border-radius: 8px;
+      padding: 0.8em 0.7em;
+      margin-bottom: 1.2em;
+      box-shadow: 0 1px 8px #292c3c10;
+    }
+    .inventory-title {
+      color: var(--accent2);
+      font-weight: 700;
+      margin-bottom: 0.6em;
+      font-size: 1.13em;
+    }
+    .inventory-list {
+      color: #eee;
+      font-size: 1em;
+      margin-bottom: 0;
+      margin-top: 0.2em;
+    }
+    .enemy-card {
+      background: #e74c3c28;
+      border-radius: 7px;
+      margin: 0.7em 0 1em 0;
+      padding: 0.7em 1em;
+      color: #f38020;
+      font-weight: 700;
+      box-shadow: 0 1px 8px #e74c3c25;
+      font-size: 1.03em;
+    }
+    .enemy-hp-bar {
+      background: var(--health);
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 0.3em;
+      width: 100%;
+    }
+    .game-over {
+      background: #e74c3c;
+      color: #fff;
+      border-radius: 10px;
+      padding: 1em 1.2em;
+      text-align: center;
+      font-size: 1.5em;
+      margin-top: 2em;
+      font-weight: 800;
+      box-shadow: 0 2px 16px #e74c3c44;
+    }
+    .restart-btn {
+      margin-top: 1.2em;
+      background: linear-gradient(90deg, #27ae60 80%, #f38020 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7em 1.4em;
+      font-size: 1.09em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #27ae6011;
+      transition: background 0.16s, color 0.16s;
+    }
+    .restart-btn:active { background: #f38020; color: #fff;}
+    .level-up {
+      background: #27ae60;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.7em 1.1em;
+      text-align: center;
+      font-size: 1.18em;
+      margin-top: 1em;
+      font-weight: 700;
+      box-shadow: 0 2px 16px #27ae6044;
+      margin-bottom: 1em;
+    }
+    @media (max-width: 650px) {
+      .container { padding: 1em 0.3em 2em 0.3em; }
+      h1 { font-size: 1.4em; }
+      .stat-card { min-width: 88px; padding: 0.5em 0.5em;}
+      .zone { padding: 0.7em 0.4em;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Zombie Survival RPG</h1>
+    <div class="subtitle">Survive as long as you can in a zombie-infested city.<br>Fight, loot, heal, and level up!</div>
+    <div id="stats"></div>
+    <div id="zone"></div>
+    <div id="enemy"></div>
+    <div class="actions" id="actions"></div>
+    <div class="log" id="log"></div>
+    <div class="inventory" id="inventory"></div>
+    <div id="levelup"></div>
+    <div id="gameover"></div>
+  </div>
+  <script>
+    // --- Game Data ---
+    const playerBase = {
+      name: "Survivor",
+      health: 100,
+      maxHealth: 100,
+      energy: 50,
+      maxEnergy: 50,
+      xp: 0,
+      level: 1,
+      xpNext: 100,
+      attack: 15,
+      defense: 8,
+      crit: 0.1,
+      inventory: ["Knife", "Medkit"],
+      weapon: "Knife",
+      medkits: 1,
+      food: 0,
+      zone: 0,
+      alive: true,
+      zombiesKilled: 0,
+      turns: 0,
+    };
+
+    const zones = [
+      {
+        name: "Downtown Ruins",
+        desc: "Skyscrapers and streets littered with debris. Zombies roam everywhere.",
+        encounterChance: 0.7,
+        lootChance: 0.4,
+        lootTable: ["Medkit", "Food", "Pistol", "Bandage", "Energy Drink"],
+        enemies: [
+          {type: "Zombie", hp: 20, atk: 7, def: 2, xp: 25, desc: "Shambling corpse"},
+          {type: "Fast Zombie", hp: 18, atk: 11, def: 2, xp: 35, desc: "Quick and aggressive"},
+          {type: "Infected Dog", hp: 14, atk: 9, def: 1, xp: 20, desc: "Rabid and fast"},
+        ]
+      },
+      {
+        name: "Abandoned Hospital",
+        desc: "Dark corridors and operating rooms. Watch out for lurking threats.",
+        encounterChance: 0.8,
+        lootChance: 0.5,
+        lootTable: ["Medkit", "Bandage", "Shotgun", "Food", "Painkillers"],
+        enemies: [
+          {type: "Zombie Nurse", hp: 23, atk: 10, def: 2, xp: 30, desc: "Still in scrubs"},
+          {type: "Crawler", hp: 15, atk: 8, def: 1, xp: 20, desc: "Moves low and fast"},
+          {type: "Bloater", hp: 30, atk: 18, def: 6, xp: 50, desc: "Huge, explodes on death"},
+        ]
+      },
+      {
+        name: "Suburban Streets",
+        desc: "Once-safe homes now overrun. Good loot, but more dangerous zombies.",
+        encounterChance: 0.7,
+        lootChance: 0.55,
+        lootTable: ["Food", "Energy Drink", "Rifle", "Medkit", "Bandage"],
+        enemies: [
+          {type: "Zombie", hp: 22, atk: 8, def: 2, xp: 25, desc: "Restless infected"},
+          {type: "Runner", hp: 19, atk: 13, def: 3, xp: 40, desc: "Sprints at you"},
+          {type: "Zombie Brute", hp: 36, atk: 20, def: 8, xp: 60, desc: "Massive and tough"},
+        ]
+      },
+      {
+        name: "Military Checkpoint",
+        desc: "Barricaded, but overrun. High risk, high reward.",
+        encounterChance: 0.5,
+        lootChance: 0.7,
+        lootTable: ["Ammo", "Grenade", "Rifle", "Medkit", "Energy Drink"],
+        enemies: [
+          {type: "Zombie Soldier", hp: 24, atk: 15, def: 4, xp: 45, desc: "Armed and armored"},
+          {type: "Military Dog", hp: 18, atk: 14, def: 2, xp: 25, desc: "Trained, now infected"},
+          {type: "Zombie Captain", hp: 38, atk: 23, def: 11, xp: 70, desc: "Leader of the horde"},
+        ]
+      },
+      {
+        name: "Safe House",
+        desc: "A rare place to rest and heal. No enemies, but limited loot.",
+        encounterChance: 0.0,
+        lootChance: 0.4,
+        lootTable: ["Medkit", "Food", "Bandage", "Energy Drink"],
+        enemies: []
+      }
+    ];
+
+    const weapons = {
+      "Knife": {atk: 15, crit: 0.10},
+      "Pistol": {atk: 22, crit: 0.17},
+      "Shotgun": {atk: 32, crit: 0.24},
+      "Rifle": {atk: 40, crit: 0.30},
+      "Grenade": {atk: 65, crit: 0.0}
+    };
+
+    const foodItems = {
+      "Food": {energy: 18, heal: 0},
+      "Energy Drink": {energy: 35, heal: 0}
+    };
+
+    // --- Game State ---
+    let player = {};
+    let enemy = null;
+    let log = [];
+    let levelUpMsg = "";
+    let gameOverMsg = "";
+
+    // --- Utility Functions ---
+    function roll(prob) { return Math.random() < prob; }
+    function randint(min, max) { return Math.floor(Math.random() * (max-min+1))+min; }
+    function cap(val, max) { return Math.min(val, max); }
+
+    function updateStats() {
+      document.getElementById("stats").innerHTML = `
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Health</div>
+            <div class="stat-value">${player.health}/${player.maxHealth}</div>
+            <div class="bar"><div class="health-bar" style="width:${(player.health/player.maxHealth)*100}%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Energy</div>
+            <div class="stat-value">${player.energy}/${player.maxEnergy}</div>
+            <div class="bar"><div class="energy-bar" style="width:${(player.energy/player.maxEnergy)*100}%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">XP</div>
+            <div class="stat-value">${player.xp}/${player.xpNext}</div>
+            <div class="bar"><div class="xp-bar" style="width:${(player.xp/player.xpNext)*100}%"></div></div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Level</div>
+            <div class="stat-value">${player.level}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Weapon</div>
+            <div class="stat-value">${player.weapon}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Zone</div>
+            <div class="stat-value">${zones[player.zone].name}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateZone() {
+      const zone = zones[player.zone];
+      document.getElementById("zone").innerHTML = `
+        <div class="zone">
+          <div class="zone-title">${zone.name}</div>
+          <div class="zone-desc">${zone.desc}</div>
+          <div><b>Loot chance:</b> ${Math.round(zone.lootChance*100)}%</div>
+          <div><b>Encounter chance:</b> ${Math.round(zone.encounterChance*100)}%</div>
+        </div>
+      `;
+    }
+
+    function updateInventory() {
+      let items = {};
+      player.inventory.forEach(i => items[i] = (items[i]||0)+1);
+      let invList = Object.entries(items).map(([name, cnt]) => 
+        `<li>${name} <span style="color:#ffd574;">x${cnt}</span></li>`
+      ).join("");
+      document.getElementById("inventory").innerHTML = `
+        <div class="inventory-title">Inventory</div>
+        <ul class="inventory-list">${invList || "<li>(empty)</li>"}</ul>
+        <div style="color:#aaa;font-size:0.93em;">Medkits: ${player.medkits} | Food: ${player.food} | Zombies killed: ${player.zombiesKilled}</div>
+      `;
+    }
+
+    function updateEnemy() {
+      if (!enemy) { document.getElementById("enemy").innerHTML = ""; return; }
+      document.getElementById("enemy").innerHTML = `
+        <div class="enemy-card">
+          <div>${enemy.type} (${enemy.desc})</div>
+          <div>HP: ${enemy.hp}/${enemy.maxHp}</div>
+          <div class="bar"><div class="enemy-hp-bar" style="width:${(enemy.hp/enemy.maxHp)*100}%"></div></div>
+          <div>Attack: ${enemy.atk} | Defense: ${enemy.def}</div>
+        </div>
+      `;
+    }
+
+    function updateLog() {
+      document.getElementById("log").innerHTML = log.slice(-6).map(msg => `<div>${msg}</div>`).join("");
+    }
+
+    function updateLevelUp() {
+      document.getElementById("levelup").innerHTML = levelUpMsg;
+    }
+
+    function updateGameOver() {
+      document.getElementById("gameover").innerHTML = gameOverMsg;
+    }
+
+    function updateActions() {
+      const actions = document.getElementById("actions");
+      actions.innerHTML = "";
+      if (gameOverMsg) return;
+      // If fighting
+      if (enemy) {
+        actions.innerHTML += `<button class="action-btn" onclick="playerAttack()">Attack</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="playerHeal()">Heal (${player.medkits} medkit${player.medkits!==1?'s':''})</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="playerRun()">Run</button>`;
+      } else {
+        actions.innerHTML += `<button class="action-btn" onclick="searchLoot()">Search for loot</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="rest()">Rest</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="moveZone()">Move to next zone</button>`;
+        actions.innerHTML += `<button class="action-btn" onclick="eatFood()">Eat food (${player.food})</button>`;
+      }
+    }
+
+    // --- Game Mechanics ---
+    window.playerAttack = function() {
+      if (!player.alive || !enemy) return;
+      const weaponStats = weapons[player.weapon] || weapons["Knife"];
+      let dmg = weaponStats.atk + randint(-5,5) + player.level*2;
+      if (roll(weaponStats.crit)) { dmg = Math.round(dmg*1.7); log.push("Critical hit!"); }
+      dmg = Math.max(1, dmg - enemy.def);
+      enemy.hp -= dmg;
+      log.push(`You hit the ${enemy.type} for ${dmg} damage.`);
+      if (enemy.hp <= 0) {
+        log.push(`You defeated the ${enemy.type}!`);
+        player.xp += enemy.xp;
+        player.zombiesKilled++;
+        enemy = null;
+        checkLevelUp();
+      } else {
+        enemyAttack();
+      }
+      updateAll();
+    };
+
+    function enemyAttack() {
+      if (!player.alive || !enemy) return;
+      let dmg = enemy.atk + randint(-3,3);
+      dmg = Math.max(1, dmg - player.defense);
+      player.health -= dmg;
+      log.push(`The ${enemy.type} hits you for ${dmg} damage.`);
+      if (player.health <= 0) {
+        player.health = 0;
+        player.alive = false;
+        log.push(`You have died...`);
+        endGame();
+      }
+    }
+
+    window.playerHeal = function() {
+      if (player.medkits > 0 && player.health < player.maxHealth) {
+        player.medkits--;
+        let heal = 30 + randint(-5,5) + player.level*2;
+        player.health = Math.min(player.maxHealth, player.health+heal);
+        log.push(`You use a medkit and heal ${heal} HP.`);
+        if (enemy) enemyAttack();
+      } else {
+        log.push("No medkits to use or already at full health.");
+        if (enemy) enemyAttack();
+      }
+      updateAll();
+    };
+
+    window.playerRun = function() {
+      if (!enemy) return;
+      if (roll(0.45 + player.level*0.03)) {
+        log.push("You escaped the fight!");
+        enemy = null;
+      } else {
+        log.push("Failed to escape!");
+        enemyAttack();
+      }
+      updateAll();
+    };
+
+    window.searchLoot = function() {
+      const zone = zones[player.zone];
+      player.turns++;
+      if (roll(zone.lootChance)) {
+        let loot = zone.lootTable[randint(0,zone.lootTable.length-1)];
+        log.push(`You found <span style="color:#ffd574;">${loot}</span>!`);
+        if (loot === "Medkit") player.medkits++;
+        else if (loot === "Food") player.food++;
+        else player.inventory.push(loot);
+      } else {
+        log.push("No loot found.");
+      }
+      // Encounter check
+      if (roll(zone.encounterChance)) {
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`A wild ${enemy.type} appears!`);
+      }
+      updateAll();
+    };
+
+    window.rest = function() {
+      player.turns++;
+      let restHeal = randint(12,21) + player.level*2;
+      let restEnergy = randint(8,18) + player.level;
+      player.health = cap(player.health+restHeal, player.maxHealth);
+      player.energy = cap(player.energy+restEnergy, player.maxEnergy);
+      log.push(`You rest and recover ${restHeal} HP and ${restEnergy} energy.`);
+      // Chance of encounter
+      const zone = zones[player.zone];
+      if (roll(zone.encounterChance-0.25)) {
+        const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+        enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+        log.push(`A ${enemy.type} attacks during your rest!`);
+      }
+      updateAll();
+    };
+
+    window.moveZone = function() {
+      if (player.zone < zones.length-1) {
+        player.zone++;
+        log.push(`You move to: <span style="color:#ffd574;">${zones[player.zone].name}</span>`);
+        player.energy = Math.max(5, player.energy-10);
+        // Chance of instant encounter
+        const zone = zones[player.zone];
+        if (roll(zone.encounterChance-0.15)) {
+          const eData = zone.enemies[randint(0,zone.enemies.length-1)];
+          enemy = {...eData, hp: eData.hp, maxHp: eData.hp};
+          log.push(`A ${enemy.type} ambushes you!`);
+        }
+        updateAll();
+      } else {
+        log.push("You are at the last zone (Safe House). Rest and heal!");
+        updateAll();
+      }
+    };
+
+    window.eatFood = function() {
+      if (player.food > 0) {
+        player.food--;
+        let energy = foodItems["Food"].energy + randint(-3,3);
+        player.energy = cap(player.energy+energy, player.maxEnergy);
+        log.push(`You eat some food and gain ${energy} energy.`);
+      } else {
+        log.push("No food to eat.");
+      }
+      updateAll();
+    };
+
+    function checkLevelUp() {
+      if (player.xp >= player.xpNext) {
+        player.level++;
+        player.xp = player.xp-player.xpNext;
+        player.xpNext = Math.round(player.xpNext*1.3+50);
+        player.maxHealth = Math.round(player.maxHealth*1.12+6);
+        player.maxEnergy = Math.round(player.maxEnergy*1.1+3);
+        player.attack = Math.round(player.attack*1.09+2);
+        player.defense = Math.round(player.defense*1.09+2);
+        levelUpMsg = `<div class="level-up">Level up! You are now level ${player.level}!</div>`;
+        setTimeout(()=>{levelUpMsg="";updateLevelUp();}, 1200);
+      }
+    }
+
+    function endGame() {
+      gameOverMsg = `<div class="game-over">Game Over<br>You survived ${player.turns} turns and killed ${player.zombiesKilled} zombies.<br>
+      <button class="restart-btn" onclick="restartGame()">Restart</button></div>`;
+      updateGameOver();
+    }
+
+    window.restartGame = function() {
+      startGame();
+    };
+
+    // --- Main Update ---
+    function updateAll() {
+      updateStats();
+      updateZone();
+      updateInventory();
+      updateEnemy();
+      updateActions();
+      updateLog();
+      updateLevelUp();
+      updateGameOver();
+    }
+
+    // --- Game Start ---
+    function startGame() {
+      player = JSON.parse(JSON.stringify(playerBase));
+      enemy = null;
+      log = ["You awaken in a destroyed city, desperate to survive..."];
+      levelUpMsg = "";
+      gameOverMsg = "";
+      updateAll();
+    }
+
+    startGame();
+
+    // Expose for inline onClick
+    window.playerAttack = playerAttack;
+    window.playerHeal = playerHeal;
+    window.playerRun = playerRun;
+    window.searchLoot = searchLoot;
+    window.rest = rest;
+    window.moveZone = moveZone;
+    window.eatFood = eatFood;
+    window.restartGame = restartGame;
+  </script>
+</body>
+</html>
