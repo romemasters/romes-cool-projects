@@ -19,6 +19,37 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
       background: #f7f8fa;
       color: #22243a;
       margin: 0;
+      min-height: 100vh;
+      /* fun background for games section */
+      background-image: radial-gradient(circle at 20% 30%, #ffd57433 0%, #f7f8fa 100%), radial-gradient(circle at 80% 75%, #f3802033 0%, #f7f8fa 100%);
+    }
+    .games-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5em;
+      margin-bottom: 2em;
+      margin-top: 0.5em;
+    }
+    .games-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 2px 8px #f3802012;
+      object-fit: contain;
+    }
+    .games-title {
+      font-size: 2.1em;
+      font-weight: 800;
+      color: #f38020;
+      letter-spacing: 1px;
+      margin-bottom: 0.15em;
+    }
+    .games-desc {
+      color: #a0a4ab;
+      font-size: 1.12em;
+      margin-bottom: 1.5em;
+      margin-top: -1em;
     }
     .cf-main {
       margin-left: 250px;
@@ -32,62 +63,101 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
         margin-left: 0;
         padding: 80px 0.4em 1em 0.4em;
       }
+      .games-header { flex-direction: column; gap:0.6em;}
+      .games-title { font-size:1.25em;}
+      .games-logo { width:38px; height:38px;}
     }
-    .cf-card {
+    .games-card {
       background: #fff;
-      border-radius: 15px;
-      padding: 2.2em 2em 1.7em 2em;
-      box-shadow: 0 4px 20px #22243a15;
-      margin-bottom: 2.7em;
+      border-radius: 22px;
+      padding: 2.5em 2em 2em 2em;
+      box-shadow: 0 6px 32px #f3802012;
       border: 1px solid #e8e8ed;
       max-width: 700px;
+      margin: 0 auto 2.7em auto;
     }
-    .cf-card-h {
-      font-size: 1.2em;
+    .games-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.2em;
+      margin-top: 1.3em;
+      margin-bottom: 1em;
+      padding: 0;
+      list-style: none;
+    }
+    .game-tile {
+      background: linear-gradient(110deg, #ffb47e33 0%, #fff8f2 90%);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #f3802011;
+      border: 1px solid #ffd574;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.6em 1em 1.4em 1em;
+      transition: box-shadow 0.18s, border 0.18s, transform 0.18s;
+      cursor: pointer;
+      position: relative;
+      animation: fadeInTile 0.8s cubic-bezier(.7,.2,.17,1) forwards;
+      opacity: 0; transform: translateY(20px) scale(0.98);
+    }
+    .game-tile:nth-child(1) { animation-delay: 0.5s;}
+    .game-tile:nth-child(2) { animation-delay: 0.6s;}
+    .game-tile:nth-child(3) { animation-delay: 0.7s;}
+    .game-tile:nth-child(4) { animation-delay: 0.8s;}
+    .game-tile:nth-child(5) { animation-delay: 0.9s;}
+    @keyframes fadeInTile {
+      to { opacity: 1; transform: none;}
+    }
+    .game-tile:hover {
+      box-shadow: 0 8px 20px #f3802022;
+      border: 1.5px solid #f38020;
+      transform: translateY(-5px) scale(1.025);
+      background: linear-gradient(110deg, #ffd57466 0%, #fff 90%);
+    }
+    .game-title {
+      font-size: 1.22em;
       color: #f38020;
       font-weight: 700;
-      margin-bottom: 1.2em;
-      letter-spacing: 0.2px;
-    }
-    .cf-game-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .cf-game-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.1em 0.8em;
-      border-radius: 10px;
       margin-bottom: 0.6em;
-      background: #f7f8fa;
-      border: 1px solid #e8e8ed;
-      transition: box-shadow 0.13s, border 0.13s, background 0.13s;
-      box-shadow: 0 1px 4px #f3802011;
+      text-align: center;
+      letter-spacing: 0.5px;
     }
-    .cf-game-row:hover {
-      box-shadow: 0 4px 18px #f3802022;
-      border: 1px solid #ffb47e;
-      background: #fff8f2;
-    }
-    .cf-game-link {
-      color: #22243a;
-      text-decoration: none;
+    .game-link-btn {
+      display: inline-block;
+      margin-top: 0.7em;
+      background: #f38020;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 0.45em 1.3em;
+      font-size: 1em;
       font-weight: 600;
-      font-size: 1.07em;
-      letter-spacing: 0.2px;
-      flex: 1;
-      transition: color 0.17s;
+      text-decoration: none;
+      transition: background 0.19s;
+      box-shadow: 0 2px 8px #ffb47e22;
+      cursor: pointer;
     }
-    .cf-game-link:hover {
+    .game-link-btn:hover {
+      background: #ffd574;
+      color: #22243a;
+    }
+    .game-edit-btn {
+      background: none;
+      border: none;
       color: #f38020;
+      font-size: 1em;
+      margin-top: 0.5em;
+      cursor: pointer;
       text-decoration: underline;
+      transition: color 0.19s;
+      font-weight: 500;
     }
+    .game-edit-btn:hover { color: #ffb47e; }
     .cf-no-games {
       color: #b2adc7;
-      padding: 1.5em 0;
+      padding: 2em 0;
       text-align: center;
+      font-size: 1.07em;
     }
     .cf-footer {
       color: #b2adc7;
@@ -100,26 +170,36 @@ const logoUrl = "https://raw.githubusercontent.com/romemasters/romes-cool-projec
 </head>
 <body>
   <main class="cf-main">
-    <section class="cf-section">
-      <div class="cf-card">
-        <div class="cf-card-h">Games</div>
-        <div style="color:#a0a4ab;margin-bottom:1.5em;">Play basic games hosted on this site! Click a game to play it directly in your browser.</div>
-        {games.length > 0 ? (
-          <ul class="cf-game-list">
-            {games.map(game => (
-              <li class="cf-game-row">
-                <a class="cf-game-link" href={`/games/${game}`} target="_blank" rel="noopener">{game.replace(/\.html$/,'')}</a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div class="cf-no-games">
-            <b>No games yet.</b> Add HTML games to <code>public/games/</code> in the repo.<br>
-            Try the included "Click Game"!
-          </div>
-        )}
+    <div class="games-header">
+      <img class="games-logo" src={logoUrl} alt="Code Unit Logo" />
+      <div>
+        <div class="games-title">Games</div>
+        <div class="games-desc">Welcome to the Games section! Play basic browser games hosted right here.<br>Click a card to open a game in a new tab.</div>
       </div>
-    </section>
+    </div>
+    <div class="games-card">
+      {games.length > 0 ? (
+        <ul class="games-list">
+          {games.map(game => (
+            <li class="game-tile" tabindex="0" onclick={`window.open('/games/${game}','_blank')`}>
+              <div class="game-title">{game.replace(/\.html$/, '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+              <a class="game-link-btn" href={`/games/${game}`} target="_blank" rel="noopener">Play</a>
+              <a
+                class="game-edit-btn"
+                href={`https://github.com/romemasters/romes-cool-projects/edit/main/public/games/${game}`}
+                target="_blank"
+                rel="noopener"
+              >Edit on GitHub</a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="cf-no-games">
+          <b>No games yet.</b> Add HTML games to <code>public/games/</code> in the repo.<br>
+          Try the included "Click Game"!
+        </div>
+      )}
+    </div>
     <div class="cf-footer">
       &copy; {new Date().getFullYear()} romemasters · Code Unit
     </div>
