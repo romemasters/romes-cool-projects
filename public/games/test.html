@@ -1,107 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn-Based Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        #game {
-            text-align: center;
-            border: 2px solid #333;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-        }
-        .player {
-            margin: 20px 0;
-            padding: 10px;
-            border: 1px solid #000;
-            border-radius: 5px;
-        }
-        #message {
-            margin: 20px;
-            font-weight: bold;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #restartButton {
-            display: none;
-        }
-    </style>
-</head>
 <body>
-    <div id="game">
-        <h1>Turn-Based Game</h1>
-        <div id="player1" class="player">
-            <h2>Player 1</h2>
-            <p>Health: <span id="player1Health">100</span></p>
-        </div>
-        <div id="player2" class="player">
-            <h2>Player 2</h2>
-            <p>Health: <span id="player2Health">100</span></p>
-        </div>
-        <div id="message"></div>
-        <button id="attackButton">Attack</button>
-        <button id="restartButton">Restart</button>
-    </div>
-    <script>
-        let player1Health = 100;
-        let player2Health = 100;
-        let currentPlayer = 1;
-        const player1HealthDisplay = document.getElementById("player1Health");
-        const player2HealthDisplay = document.getElementById("player2Health");
-        const messageDisplay = document.getElementById("message");
-        const attackButton = document.getElementById("attackButton");
-        const restartButton = document.getElementById("restartButton");
-        attackButton.addEventListener("click", () => {
-            if (currentPlayer === 1) {
-                const damage = Math.floor(Math.random() * 20) + 1;
-                player2Health -= damage;
-                messageDisplay.textContent = Player 1 attacks Player 2 for ${damage} damage!;
-                currentPlayer = 2;
-            } else {
-                const damage = Math.floor(Math.random() * 20) + 1;
-                player1Health -= damage;
-                messageDisplay.textContent = Player 2 attacks Player 1 for ${damage} damage!;
-                currentPlayer = 1;
-            }
-            updateHealth();
-            if (player1Health <= 0) {
-                messageDisplay.textContent = "Player 2 wins!";
-                endGame();
-            } else if (player2Health <= 0) {
-                messageDisplay.textContent = "Player 1 wins!";
-                endGame();
-            }
-        });
-        function updateHealth() {
-            player1HealthDisplay.textContent = player1Health;
-            player2HealthDisplay.textContent = player2Health;
-        }
-        function endGame() {
-            attackButton.disabled = true;
-            restartButton.style.display = "block";
-        }
-        restartButton.addEventListener("click", () => {
-            player1Health = 100;
-            player2Health = 100;
-            currentPlayer = 1;
-            updateHealth();
-            messageDisplay.textContent = "";
-            attackButton.disabled = false;
-            restartButton.style.display = "none";
-        });
-    </script>
+<link href="/style.css" rel="stylesheet" type="text/css" media="all">
+<title>Smashkarts</title>
+<link rel="icon" type="image/x-icon" href="burg.webp">
+<!--Font-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@700&display=swap" rel="stylesheet">
+<center>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2GLK05RC89"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2GLK05RC89');
+</script>
+<div>
+<a class="logo" href="index.html"><img src="burgbuttonn.png" width="auto" height="16%"></a>
+</div>
+<center>
+<!--G-->
+<br>
+<br>
+<br>
+<br>
+<br>
+<div>
+<embed src="https://moomoo.io" width="100%" height="100%" style="border-radius: 15px">
+</div>
 </body>
-</html>
