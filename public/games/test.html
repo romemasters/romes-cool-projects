@@ -3,59 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Sprite Game</title>
+    <title>Turn-Based Game</title>
     <style>
         body {
-            margin: 0;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #87CEEB; /* Light blue background */
+            background-color: #f0f0f0;
         }
-        #gameArea {
-            position: relative;
-            width: 600px;
-            height: 400px;
-            border: 2px solid #000; /* Black border */
-            overflow: hidden;
-            background-color: #fff; /* White background */
+        #game {
+            text-align: center;
+            border: 2px solid #333;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
         }
-        #player {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-image: url('https://via.placeholder.com/40'); /* Placeholder sprite image */
-            background-size: cover; /* Adjusts the image to cover the div */
-            left: 0;
-            top: 0;
+        .player {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #000;
+            border-radius: 5px;
+        }
+        #message {
+            margin: 20px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #restartButton {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="player"></div>
+    <div id="game">
+        <h1>Turn-Based Game</h1>
+        <div id="player1" class="player">
+            <h2>Player 1</h2>
+            <p>Health: <span id="player1Health">100</span></p>
+        </div>
+        <div id="player2" class="player">
+            <h2>Player 2</h2>
+            <p>Health: <span id="player2Health">100</span></p>
+        </div>
+        <div id="message"></div>
+        <button id="attackButton">Attack</button>
+        <button id="restartButton">Restart</button>
     </div>
     <script>
-        const player = document.getElementById('player');
-        const gameArea = document.getElementById('gameArea');
-        let posX = 0;
-        let posY = 0;
-        const moveAmount = 10; // Pixels to move per key press
-        function movePlayer(event) {
-            if (event.key === 'ArrowUp' && posY > 0) {
-                posY -= moveAmount;
-            } else if (event.key === 'ArrowDown' && posY < gameArea.clientHeight - player.clientHeight) {
-                posY += moveAmount;
-            } else if (event.key === 'ArrowLeft' && posX > 0) {
-                posX -= moveAmount;
-            } else if (event.key === 'ArrowRight' && posX < gameArea.clientWidth - player.clientWidth) {
-                posX += moveAmount;
+        let player1Health = 100;
+        let player2Health = 100;
+        let currentPlayer = 1;
+        const player1HealthDisplay = document.getElementById("player1Health");
+        const player2HealthDisplay = document.getElementById("player2Health");
+        const messageDisplay = document.getElementById("message");
+        const attackButton = document.getElementById("attackButton");
+        const restartButton = document.getElementById("restartButton");
+        attackButton.addEventListener("click", () => {
+            if (currentPlayer === 1) {
+                const damage = Math.floor(Math.random() * 20) + 1;
+                player2Health -= damage;
+                messageDisplay.textContent = Player 1 attacks Player 2 for ${damage} damage!;
+                currentPlayer = 2;
+            } else {
+                const damage = Math.floor(Math.random() * 20) + 1;
+                player1Health -= damage;
+                messageDisplay.textContent = Player 2 attacks Player 1 for ${damage} damage!;
+                currentPlayer = 1;
             }
-            player.style.left = posX + 'px';
-            player.style.top = posY + 'px';
+            updateHealth();
+            if (player1Health <= 0) {
+                messageDisplay.textContent = "Player 2 wins!";
+                endGame();
+            } else if (player2Health <= 0) {
+                messageDisplay.textContent = "Player 1 wins!";
+                endGame();
+            }
+        });
+        function updateHealth() {
+            player1HealthDisplay.textContent = player1Health;
+            player2HealthDisplay.textContent = player2Health;
         }
-        window.addEventListener('keydown', movePlayer);
+        function endGame() {
+            attackButton.disabled = true;
+            restartButton.style.display = "block";
+        }
+        restartButton.addEventListener("click", () => {
+            player1Health = 100;
+            player2Health = 100;
+            currentPlayer = 1;
+            updateHealth();
+            messageDisplay.textContent = "";
+            attackButton.disabled = false;
+            restartButton.style.display = "none";
+        });
     </script>
 </body>
 </html>
