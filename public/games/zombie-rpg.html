@@ -534,7 +534,19 @@
         enemies: [
           {type: "Zombie Soldier", hp: 24, atk: 15, def: 4, xp: 45, desc: "Armed and armored"},
           {type: "Military Dog", hp: 18, atk: 14, def: 2, xp: 25, desc: "Trained, now infected"},
-          {type: "Zombie Captain", hp: 38, atk: 23, def: 11, xp: 70, desc: "Leader of the horde"},
+          {type: "Zombie Captain", hp: 38, atk: 23, def: 11, xp: 70, desc: "Old military captain turned infected"},
+        ]
+      },
+       {
+        name: "Zombie Infested Wasteland ",
+        desc: "Best get out quick, the zombies here are dangerous.",
+        encounterChance: 0.8,
+        lootChance: 0.2,
+        lootTable: ["Medkit", "Bandage", "Shotgun", "Food", "Painkillers"],
+        enemies: [
+          {type: "???", hp: 94, atk: 30, def: 2, xp: 235, desc: "You feel your head being filled with amnesia"},
+          {type: "Dreadful Zombie", hp: 3, atk: 102, def: 1, xp: 9, desc: "It looks like it's falling apart"},
+          {type: "Test", hp: 67, atk: 102, def: 1, xp: 99999999, desc: "It charges like a brute and a runner combined"},
         ]
       },
       {
@@ -894,7 +906,7 @@
         }
         updateAll();
       } else {
-        log.push("You are at the last zone (Safe House). Rest and heal!");
+        log.push("You are at the last zone (Safe House). Rest and heal, you beat the game until we add more stages!");
         updateAll();
       }
     };
