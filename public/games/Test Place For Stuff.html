@@ -1,1 +1,385 @@
-Nothing here needs to be tested atp, thanks for stopping by *v*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cute Chat Room</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://chitchatter.im/sdk.js"></script>
+  <style>
+    :root {
+      --accent: #7bafe7;
+      --bg: #191b20;
+      --card: #23252b;
+      --text: #e3eaff;
+      --shadow: 0 8px 32px #0006, 0 1px 6px #222a;
+      --radius: 24px;
+      --flower-pink: #ffbcd3;
+      --flower-yellow: #fff7b2;
+      --flower-blue: #b2e9ff;
+      --flower-green: #b2ffc1;
+      --flower-purple: #e0b2ff;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      transition: background 0.2s;
+    }
+    /* Flower decorations */
+    .flowers-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .flower {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      opacity: 0.85;
+      transition: transform 0.9s;
+      animation: flowerFloat 7s infinite ease-in-out alternate;
+    }
+    .flower.f1 { top: 8%; left: 6%; animation-delay: 0s; }
+    .flower.f2 { top: 16%; right: 11%; animation-delay: 1.5s; }
+    .flower.f3 { bottom: 20%; left: 9%; animation-delay: 0.5s;}
+    .flower.f4 { bottom: 11%; right: 7%; animation-delay: 2.2s;}
+    .flower.f5 { top: 52%; left: 2%; animation-delay: 1.2s;}
+    .flower.f6 { bottom: 55%; right: 3%; animation-delay: 0.8s;}
+    .flower.f7 { top: 75%; left: 14%; animation-delay: 1.8s;}
+    .flower.f8 { bottom: 80%; right: 15%; animation-delay: 2.6s;}
+    @keyframes flowerFloat {
+      0% { transform: translateY(0) scale(1);}
+      100% { transform: translateY(-22px) scale(1.09);}
+    }
+    /* Header & chat */
+    header {
+      margin: 40px 0 30px 0;
+      text-align: center;
+      z-index: 2;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #fafafa;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .chat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px 34px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 350px;
+      width: 100%;
+      max-width: 900px;
+      z-index: 2;
+      position: relative;
+      border: 2.5px solid var(--accent);
+      box-shadow: 0 8px 32px #0006, 0 1px 6px #222a, 0 0 0 8px #7bafe733;
+      transition: box-shadow 0.2s;
+      animation: popInCard 0.9s;
+    }
+    @keyframes popInCard {
+      0% { transform: scale(0.93); opacity: 0;}
+      100% { transform: scale(1); opacity: 1;}
+    }
+    chat-room {
+      width: 100%;
+      height: 72vh;
+      min-height: 380px;
+      max-height: 75vh;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px #111a;
+      background: #222;
+      margin-top: 4px;
+      border: 1.5px solid #7bafe7;
+      transition: box-shadow 0.2s;
+      animation: fadeInChat 1.2s;
+    }
+    @keyframes fadeInChat {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    /* Modal */
+    .note-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(25,27,32,0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      transition: opacity 0.3s;
+      opacity: 1;
+    }
+    .note-modal.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .note-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 2.5px solid var(--accent);
+      padding: 38px 38px 28px 38px;
+      color: var(--text);
+      max-width: 380px;
+      min-width: 240px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: popIn 0.7s;
+      position: relative;
+      box-shadow: 0 8px 32px #0006, 0 1px 6px #222a, 0 0 0 8px #7bafe733;
+    }
+    .note-content .emoji {
+      font-size: 2.6rem;
+      margin-bottom: 6px;
+    }
+    .note-content strong {
+      color: var(--accent);
+    }
+    .note-btn {
+      margin-top: 15px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.12rem;
+      font-weight: 600;
+      padding: 13px 36px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0003;
+      transition: background 0.2s;
+      outline: none;
+    }
+    .note-btn:hover, .note-btn:focus {
+      background: #6392c7;
+      outline: 2px solid #fff;
+    }
+    footer {
+      margin: 40px 0 24px 0;
+      color: #555;
+      font-size: 1rem;
+      text-align: center;
+      opacity: 0.6;
+      letter-spacing: 1px;
+      z-index: 2;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1.5px dashed var(--accent);
+      padding-bottom: 1.5px;
+      transition: color 0.2s;
+    }
+    footer a:hover {
+      color: #fff7b2;
+      border-bottom: 1.5px solid #fff7b2;
+    }
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .chat-card {
+        padding: 12px 4vw;
+        min-width: 0;
+        max-width: 99vw;
+      }
+      chat-room {
+        width: 99vw !important;
+        height: 60vh !important;
+        max-height: 64vh;
+      }
+      .note-content {
+        max-width: 90vw;
+        padding: 32px 18px 18px 18px;
+      }
+    }
+    @media (max-width: 600px) {
+      header {
+        margin-top: 16px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .chat-card {
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px #222a, 0 0 0 3px #7bafe733;
+      }
+      chat-room {
+        min-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Cute flowers background (NOT behind chat card) -->
+  <div class="flowers-bg">
+    <!-- SVG flowers, pastel colors -->
+    <svg class="flower f1" viewBox="0 0 52 52"><circle cx="26" cy="26" r="12" fill="var(--flower-pink)" /><g><ellipse cx="26" cy="11" rx="7" ry="11" fill="var(--flower-yellow)" /><ellipse cx="41" cy="26" rx="7" ry="11" fill="var(--flower-blue)" /><ellipse cx="26" cy="41" rx="7" ry="11" fill="var(--flower-green)" /><ellipse cx="11" cy="26" rx="7" ry="11" fill="var(--flower-purple)"/></g></svg>
+    <svg class="flower f2" viewBox="0 0 52 52"><circle cx="26" cy="26" r="10" fill="var(--flower-yellow)" /><g><ellipse cx="26" cy="11" rx="6" ry="10" fill="var(--flower-pink)" /><ellipse cx="41" cy="26" rx="6" ry="10" fill="var(--flower-purple)" /><ellipse cx="26" cy="41" rx="6" ry="10" fill="var(--flower-blue)" /><ellipse cx="11" cy="26" rx="6" ry="10" fill="var(--flower-green)"/></g></svg>
+    <svg class="flower f3" viewBox="0 0 52 52"><circle cx="26" cy="26" r="11" fill="var(--flower-blue)" /><g><ellipse cx="26" cy="11" rx="7" ry="11" fill="var(--flower-green)" /><ellipse cx="41" cy="26" rx="7" ry="11" fill="var(--flower-pink)" /><ellipse cx="26" cy="41" rx="7" ry="11" fill="var(--flower-yellow)" /><ellipse cx="11" cy="26" rx="7" ry="11" fill="var(--flower-purple)"/></g></svg>
+    <svg class="flower f4" viewBox="0 0 52 52"><circle cx="26" cy="26" r="10" fill="var(--flower-green)" /><g><ellipse cx="26" cy="11" rx="6" ry="10" fill="var(--flower-purple)" /><ellipse cx="41" cy="26" rx="6" ry="10" fill="var(--flower-yellow)" /><ellipse cx="26" cy="41" rx="6" ry="10" fill="var(--flower-pink)" /><ellipse cx="11" cy="26" rx="6" ry="10" fill="var(--flower-blue)"/></g></svg>
+    <svg class="flower f5" viewBox="0 0 52 52"><circle cx="26" cy="26" r="12" fill="var(--flower-purple)" /><g><ellipse cx="26" cy="11" rx="7" ry="11" fill="var(--flower-blue)" /><ellipse cx="41" cy="26" rx="7" ry="11" fill="var(--flower-green)" /><ellipse cx="26" cy="41" rx="7" ry="11" fill="var(--flower-yellow)" /><ellipse cx="11" cy="26" rx="7" ry="11" fill="var(--flower-pink)"/></g></svg>
+    <svg class="flower f6" viewBox="0 0 52 52"><circle cx="26" cy="26" r="11" fill="var(--flower-pink)" /><g><ellipse cx="26" cy="11" rx="7" ry="11" fill="var(--flower-yellow)" /><ellipse cx="41" cy="26" rx="7" ry="11" fill="var(--flower-green)" /><ellipse cx="26" cy="41" rx="7" ry="11" fill="var(--flower-blue)" /><ellipse cx="11" cy="26" rx="7" ry="11" fill="var(--flower-purple)"/></g></svg>
+    <svg class="flower f7" viewBox="0 0 52 52"><circle cx="26" cy="26" r="10" fill="var(--flower-yellow)" /><g><ellipse cx="26" cy="11" rx="6" ry="10" fill="var(--flower-pink)" /><ellipse cx="41" cy="26" rx="6" ry="10" fill="var(--flower-purple)" /><ellipse cx="26" cy="41" rx="6" ry="10" fill="var(--flower-blue)" /><ellipse cx="11" cy="26" rx="6" ry="10" fill="var(--flower-green)"/></g></svg>
+    <svg class="flower f8" viewBox="0 0 52 52"><circle cx="26" cy="26" r="11" fill="var(--flower-blue)" /><g><ellipse cx="26" cy="11" rx="7" ry="11" fill="var(--flower-green)" /><ellipse cx="41" cy="26" rx="7" ry="11" fill="var(--flower-pink)" /><ellipse cx="26" cy="41" rx="7" ry="11" fill="var(--flower-yellow)" /><ellipse cx="11" cy="26" rx="7" ry="11" fill="var(--flower-purple)"/></g></svg>
+  </div>
+  <!-- Modal Loading Screen -->
+  <div class="note-modal" id="noteModal">
+    <div class="note-content">
+      <span class="emoji">👥</span>
+      <strong>Welcome!</strong>
+      <div>
+        <ul style="text-align:left; list-style:inside; margin: 12px 0 0 0;">
+          <li>Connecting may take a minute or longer.</li>
+          <li>Click the <strong>peers icon</strong> in the chat app to change your name!</li>
+        </ul>
+      </div>
+      <button class="note-btn" id="noteConfirmBtn">Okay, got it!</button>
+    </div>
+  </div>
+  <header>
+    <h1>
+      <span style="font-size:2.1rem;">💬</span>
+      Cute Chat Room
+    </h1>
+    <p style="color:#aac2ff; font-size:1.16rem; margin-top:-6px;">
+      A cozy place to chat — dark, stylish, and simple.
+    </p>
+  </header>
+  <main style="width:100%;display:flex;justify-content:center;">
+    <section class="chat-card">
+      <chat-room width="100%" height="100%" room="nice-thailand-astonishing-room"></chat-room>
+    </section>
+  </main>
+  <footer>
+    Made with ❤️ &amp; <a href="https://chitchatter.im" target="_blank">ChitChatter</a>
+  </footer>
+  <script>
+    // Modal logic: only show once per browser
+    const modal = document.getElementById('noteModal');
+    const btn = document.getElementById('noteConfirmBtn');
+    if(localStorage.getItem('chatModalSeen')) {
+      modal.classList.add('hide');
+    }
+    btn.onclick = function() {
+      modal.classList.add('hide');
+      localStorage.setItem('chatModalSeen', 'yes');
+    };
+
+    // Tab title notification logic
+    (function() {
+      let originalTitle = document.title;
+      let lastMessageCount = 0;
+      let newMessages = 0;
+      let flashInterval = null;
+      let tabActive = true;
+
+      // Helper to get current message count from inside the chat iframe
+      function getMessageCount() {
+        try {
+          // Select the chat iframe if present
+          const chatRoom = document.querySelector('chat-room');
+          if (!chatRoom) return 0;
+
+          // Grab the iframe inside the chat-room element
+          const iframe = chatRoom.shadowRoot
+            ? chatRoom.shadowRoot.querySelector('iframe')
+            : chatRoom.querySelector('iframe');
+          if (!iframe) return 0;
+
+          // Try to access the iframe's document (must be same-origin)
+          const chatDoc = iframe.contentDocument || iframe.contentWindow.document;
+          const transcript = chatDoc.querySelector('.ChatTranscript');
+          return transcript ? transcript.querySelectorAll('.Message').length : 0;
+        } catch (e) {
+          // If can't access (cross-origin), fallback (won't work unless same-origin)
+          return 0;
+        }
+      }
+
+      // If iframe is not accessible (most likely due to cross-origin), fallback to mutation observer on parent
+      function getMessageCountFallback() {
+        // Find the transcript in parent document
+        const transcript = document.querySelector('.ChatTranscript');
+        return transcript ? transcript.querySelectorAll('.Message').length : 0;
+      }
+
+      // Flash the title with number of new messages
+      function startTitleFlash() {
+        if (flashInterval) return;
+        flashInterval = setInterval(() => {
+          document.title = (document.title === originalTitle)
+            ? `(+${newMessages}) ${originalTitle}`
+            : originalTitle;
+        }, 1000);
+      }
+
+      // Stop flashing and restore original title
+      function stopTitleFlash() {
+        if (flashInterval) {
+          clearInterval(flashInterval);
+          flashInterval = null;
+          document.title = originalTitle;
+        }
+        newMessages = 0;
+      }
+
+      // Watch for new messages
+      function checkForMessages() {
+        // Try both iframe and fallback method
+        let currentCount = getMessageCount();
+        if (currentCount === 0) {
+          currentCount = getMessageCountFallback();
+        }
+        if (!tabActive) {
+          if (currentCount > lastMessageCount) {
+            newMessages += currentCount - lastMessageCount;
+            startTitleFlash();
+          }
+        }
+        lastMessageCount = currentCount;
+      }
+
+      // Listen for tab focus/blur
+      window.addEventListener('focus', () => {
+        tabActive = true;
+        stopTitleFlash();
+        lastMessageCount = getMessageCount() || getMessageCountFallback();
+      });
+
+      window.addEventListener('blur', () => {
+        tabActive = false;
+        lastMessageCount = getMessageCount() || getMessageCountFallback();
+      });
+
+      // Initial setup
+      lastMessageCount = getMessageCount() || getMessageCountFallback();
+
+      // Poll every second for new messages
+      setInterval(checkForMessages, 1000);
+    })();
+  </script>
+</body>
+</html>
