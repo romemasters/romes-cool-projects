@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home | Lesson | Assesment </title>
+  <meta name="viewport" content="width=800, initial-scale=1.0">
+  <script src="https://chitchatter.im/sdk.js"></script>
+  <style>
+    body {
+      background: #181818;
+      color: #eee;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      min-height: 100vh;
+    }
+    header {
+      margin-top: 40px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #fafafa;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-shadow: 0 2px 10px #222;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    .main-content {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 1000px;
+    }
+    .side-note {
+      background: #23232a;
+      border-left: 6px solid #6bafe7;
+      border-radius: 16px;
+      padding: 22px 26px;
+      color: #e3eaff;
+      font-size: 1.15rem;
+      box-shadow: 0 2px 18px #0005;
+      max-width: 280px;
+      min-width: 200px;
+      margin-right: 10px;
+      margin-top: 10px;
+      position: sticky;
+      top: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .side-note strong {
+      color: #6bafe7;
+      font-weight: bold;
+    }
+    .side-note .emoji {
+      font-size: 1.7rem;
+      margin-bottom: 8px;
+    }
+    .chat-container {
+      background: #242424;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 6px 40px #000a, 0 1px 6px #333a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    chat-room {
+      margin-top: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px #111a;
+    }
+    footer {
+      margin-top: 40px;
+      color: #444;
+      font-size: 1rem;
+      text-align: center;
+      opacity: 0.7;
+    }
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+        gap: 0;
+        align-items: center;
+        max-width: 98vw;
+      }
+      .side-note {
+        margin: 0 0 16px 0;
+        max-width: 96vw;
+        min-width: 0;
+        border-radius: 12px;
+        border-left: 6px solid #6bafe7;
+      }
+      .chat-container {
+        padding: 10px;
+      }
+      chat-room {
+        width: 98vw !important;
+        height: 70vh !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>💬  Chat Room</h1>
+    <p>Hey hey heyy! </p>
+  </header>
+  <div class="main-content">
+    <div class="side-note">
+      <span class="emoji">🍐</span>
+      <strong>Note:</strong>
+      <ul style="margin: 10px 0 0 0; padding-left: 18px;">
+        <li>Connecting may take a minute or longer.</li>
+        <li>Click the <strong>pears icon</strong> in the chat app to change your name!</li>
+      </ul>
+    </div>
+    <div class="chat-container">
+      <chat-room width="800" height="800" room="nice-thailand-astonishing-room"></chat-room>
+    </div>
+  </div>
+  <footer>
+    Made with ❤️ &amp; <a href="https://chitchatter.im" target="_blank" style="color: #7bf;">Love</a>
+  </footer>
+</body>
+</html>
