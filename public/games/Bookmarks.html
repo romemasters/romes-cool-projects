@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Studies</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .bookmarklet {
+      display: inline-block;
+      background-color: #f0f0f0;
+      padding: 10px 20px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+    .bookmarklet:hover {
+      background-color: #e0e0e0;
+    }
+    .instructions, .generator {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #customBookmarkletContainer {
+      margin-top: 20px;
+    }
+    #errorMessage {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Romes Bookmarkleter MasterMind</h1>
+  <p>Drag these bookmarklets to your browser's bookmarks bar to use them on any webpage. The first bookmarklet allows you to fetch all emoticons or really anything that isnt a normal emoji on the emojiscombo page you're on and copies them to your clipboard. You can use that list in the custom bookmarklet area to get your list turned into a bookmarklet to select any of the fetched bookmarklets to copy at any time.</p>
+  
+  <div>
+    <a class="bookmarklet" href='javascript:(function(){function isEmoji(a){return/\p{Extended_Pictographic}/u.test(a)}function fetchEmojiText(){const a=document.querySelectorAll('div[data-type="emoji_combo"]'),b=[];a.forEach(a=>{const c=a.textContent.trim();c.length<100&&!isEmoji(c)&&b.push(c)});const c=b.join('   ||   ');alert(c);try{const a=document.createElement('textarea');a.value=c,a.style.position='fixed',a.style.opacity='0',document.body.appendChild(a),a.focus(),a.select(),document.execCommand('copy'),document.body.removeChild(a),console.log('Text copied to clipboard')}catch(a){console.error('Failed to copy:',a),alert('Copy failed. Copy from alert manually')}}fetchEmojiText();})();'>Fetch Emoji Text</a>
+    <p>Fetches non-emoji text from &lt;div data-type="emoji_combo"&gt; elements, joins with "   ||   ", shows in an alert, and copies to clipboard.</p>
+  </div>
+  
+  <div>
+    <a class="bookmarklet" href='javascript:(function(){function isEmoji(a){return/\p{Extended_Pictographic}/u.test(a)}const items=["( ˶ˆᗜˆ˵ )","ദ്ദി(｡•̀ ,<)~✩‧₊","(˶' ꒳ '˶)","(,,>ヮ<,,)!","(˶◜ᵕ◝˶)","٩(^ᗜ^ )و ´-","(˶ᵔ ᵕ ᵔ˶)","ദ്ദി ˉ͈̀꒳ˉ͈́ )✧","(˵>ᗜ<˵) !!","ദ്ദി(ᵔᗜᵔ)",">ᴗ< !!","( ˆ𐃷ˆ) .ᐟ.ᐟ","٩(>ᴗ<)و","❀´ ˘`❀)(ˊ(˶ᵔ ᵕ ᵔ˶) ‹𝟹","Bro... this website really needs to have a report button!! WHOS WITH ME??","(๑•ᴗ•๑)","૮꒰ྀི∩´ ᵕ `∩꒱ྀིა","◝(ᵔᗜᵔ)◜","•ᴗ•","( > 𐃷 <  )","(⸝⸝>⩊<⸝⸝)","(≧ᗜ≦)ᡣ𐭩","❀⸜(˶´ ˘ `˶)⸝❀","ദ്ദി・ᴗ・)✧","( ˶°ᗜ°) ⭑.ᐟ","(｡•ᗜ•｡)!☆","૮ ˶ᵔ ᵕ ᵔ˶ ა","𝖜𝖔𝖒𝖕 𝖜𝖔𝖒𝖕","٩(⌯˃ ▾ ˂⌯)‎و","˶ᵔ ᵕ ᵔ˶","( • ᗜ • )","- ̗̀( ˶'ᵕ'˶)  ̖́-","( - ᴗ •́ )","(˶◜ᴗ◝˶)","₍^ >ヮ<^₎ .ᐟ.ᐟ","ˊᗜˋ","˖ ࣪‧₊˚⋆✩٩(ˊᗜˋ*)و ✩","(˶˃ ᗜ ˂˶)","ヾ( ˃ᴗ˂ )◞","(˶^◡^˶)","( ͈ര ̫ര ͈) ⊹`𓈒","˃ᴗ˂","(ㅅ´ ˘ `)","ദ്ദി( ╥ ᴗ ╥)","ദ്ദി(｡•̀ ᗜ<)","٩>ᴗ<)و","(*ᴗ͈ˬᴗ͈)ꕤ*.ﾟ","(๑>◡<๑)","◝(ᵔᵕᵔ)◜","(๑'ᵕ'๑)⸝*","৻(≧ᗜ≦৻)","ヾ(≧∇≦)ゞ","(˶◜ヮ◝˶)","(,, .  ̫. ,,)","⪩(ᐢᗜᐢ)⪨","₍ᐢ.  ̫.ᐢ₎","(｡> ᴗ ☆｡) ‧₊˚","( ᵔ ᵕ ᴗ)","ヾ(˶ᵔ ᗜ ᵔ˶)","( ˶°ㅁ°) !!","≧˙𐃷˙≦","ᕙ(  •̀ ᗜ •́  )ᕗ","≽^•⩊•^≼","(˶• ᴗ •˵)","ˆ𐃷ˆ","⸜(*ˊᗜˋ*)⸝","(๑ᵔ⤙ᵔ๑)","(ˆᗜˆ=)","(∩˃ᴗ˂∩)✧","ദ്ദി(•̀ ᗜ <)","(੭˃ᴗ˂)੭","(๑ᵔ ᗜ ᵔ๑)","(˶˃ ᵕ ˂˶)","(𖦹𖧹𖥦𖧹𖦹)","(⸝⸝ ˊᗜˋ⸝⸝ )","✮ ⋆ ˚｡𖦹 ⋆｡°✩","(˶˃ᗜ˂˵)","(⸝⸝> ᴗ•⸝⸝)","ˊᵕˋ","໒꒰ྀི˃ ᵕ ˂ ꒱ྀིა","(⁠˵ ´⁠ω⁠`⁠ ˵)","(づ•ᴗ•)づᯓ *𝕐𝕠𝕦*","ヽ(´▽`)/ .ᐟ.ᐟ","ヾ(•̀ ヮ <)و","(⟡ᗜ⟡) !!","(๑>ᴗ<๑)","(˶^ᗜ^˶)","(๑>؂•̀๑)","✩·͙*̩̩͙˚̩̥̩̥\\( ≧ᗜ≦ )/*̩̩͙✩·͙˚̩̥̩̥.","(╥ᴗ╥)","_(߹𖥦߹」∠)_","(*´▽`*)","ദ്ദി(｡•̀꒳•́｡)ว","ദ്ദി ( ᵔ ᗜ ᵔ )","ヾ( ˃ᴗ˂ )◞ • *✰","∧,,,∧ (  ̳• · •  ̳) /    づ","૮꒰ ˶ᵔ ᵕ ᵔ˶ ꒱ა","( ◡̀⩊◡́)","ᡣ𐭩ヽ(.◜ω◝.)/","(/ v \\) 3","°ʚ(*´꒳`*)ɞ°","(^ ƪ ^)","• ◡ •","◕‿◕","ꉂ(≧▽≦)",">ᴗ<","✮୨ৎ˙𐃷˙୨ৎ✮ . ݁₊ ⊹ . ݁⟡ ݁ .⊹ ₊ ݁","ᕕ( ᐛ )ᕗ","˖ ݁𖥔(˵ •̀ ᴗ - ˵ ) ˖ ݁𖥔 ݁˖","୭ ˚. ᵎᵎˎˊ˗","( >▽<) !!","(≡^∇^≡)","✧⁺⸜(･ ᗜ ･ )⸝⁺✧","໒꒰ྀི ∩ɞ̴̶̷ ˕ ɞ̴̶̷∩꒱ྀི১","˙ᵕ˙","ദ്ദി´▽`)","ʚ(｡˃ ᵕ ˂ )ɞ","(˶^ ᴗ ^˶)",". ݁₊ ⊹ . ݁˖ . ݁ᯓ ᡣ𐭩","ᓚ₍ ^. .^₎","(ㅅ´ ˘ `)","(..◜ᴗ◝..)","(*ᴗ͈ˬᴗ͈)ꕤ*","( ＾ω＾ )","\\(˶ᵔ ᵕ ᵔ˶)/","( • ᴗ - ) ✧","ฅ(^>⩊<^)ฅ","(ෆ˶˙ᵕ˙˶ෆ)","( ˶ˆᗜˆ˵ )~✩‧₊","(~˶˃ ᵕ ˂˶)~","(≧ᗜ≦)","ˆᗜˆ","˶> ᵕ <˶","ˆ꒳ˆ","˚ ༘ ೀ⋆｡˚ᰔᩚ","ଘ(੭ˊᵕˋ)੭* ੈ✩‧₊","(⸝⸝⸝-﹏-⸝⸝⸝)","𐔌՞꜆・꒳・꜀՞𐦯","(´>᎑<)","⋆｡𖦹°⭒˚｡⋆","つ(＾＾)つ","◝(>ヮ<)◜","ෆ˙ᵕ˙ෆ","\\(๑>◡<๑)/","( っ˶´ ˘ `)っ","\"૮₍ •⤙•˶₊˚ෆ","ദ്ദി(｡> ヮ<)~✩‧₊",". ݁₊ ⊹ . ݁˖ . ݁(੭˃ᴗ˂)੭","ᕙ(•̀ ᗜ •́  )!!","(´ω｀)","໒꒰ྀི ˃ ᵕ ˂ ꒱ྀི১","(๑ > ᴗ < ๑)°ᡣ𐭩 . ° . !!","(๑˃̵ᴗ˂̵) !","(๑ᵔ⤙ᵔ๑)","\\(⸝⸝>w<⸝⸝)/","\\(ᗒヮᗕ)/","( ^ ᴗ ^ )ε^ )","⊂⁠(⁠(⁠・⁠▽⁠・⁠)⁠)⁠⊃","(^_\\\\)","o(｀ω´ )o","(- -) o o |    |    Uu","꒰ঌ(˶ˆᗜˆ˵)໒꒱","(∩^o^)⊃━☆.*","(˶ᵔ ᵕ ᵔ˶)✮⋆˙","(  •̀ ᗜ •́  )","٩(ˊᗜˋ*)و","•⩊•","(❀˶ᵔ ᵕ ᵔ˶)","ଘ(っ・ᴗ・)っ ﾟ.*","˶ᵔ ᵕ ᵔ˶"].filter(a=>a.length<100&&!isEmoji(a));if(document.getElementById('emojiDialog'))return;const dialog=document.createElement('div');dialog.id='emojiDialog',dialog.style.position='fixed',dialog.style.top='50%',dialog.style.left='50%',dialog.style.transform='translate(-50%,-50%)',dialog.style.background='#fff',dialog.style.border='1px solid #000',dialog.style.padding='20px',dialog.style.zIndex='9999',dialog.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)',dialog.style.maxWidth='400px',dialog.style.maxHeight='80vh',dialog.style.overflow='auto',dialog.style.fontFamily='Arial,sans-serif';const select=document.createElement('select');select.style.width='100%',select.style.padding='5px',select.style.marginBottom='10px',items.forEach(a=>{const b=document.createElement('option');b.value=a,b.textContent=a,select.appendChild(b)}),dialog.appendChild(select);const copyBtn=document.createElement('button');copyBtn.textContent='Copy Selected',copyBtn.style.marginRight='10px',copyBtn.style.padding='5px 10px',copyBtn.style.cursor='pointer',copyBtn.onclick=()=>{const a=select.value;try{const b=document.createElement('textarea');b.value=a,document.body.appendChild(b),b.select(),document.execCommand('copy'),document.body.removeChild(b),alert('Copied: '+a)}catch(b){alert('Copy failed. Copy manually: '+a)}};const closeBtn=document.createElement('button');closeBtn.textContent='Close',closeBtn.style.padding='5px 10px',closeBtn.style.cursor='pointer',closeBtn.onclick=()=>{document.body.removeChild(dialog)};const btnContainer=document.createElement('div');btnContainer.style.textAlign='center',btnContainer.appendChild(copyBtn),btnContainer.appendChild(closeBtn),dialog.appendChild(btnContainer),document.body.appendChild(dialog),dialog.onclick=a=>a.target===dialog&&document.body.removeChild(dialog);})();'>Emoji Selector</a>
+    <p>Opens a dialog with a selectable list of non-emoji text items, allowing you to copy one to the clipboard.</p>
+  </div>
+  
+  <div class="generator">
+    <h2>Create Custom Bookmarklet</h2>
+    <p>Paste your list of items (separated by "   ||   ") below to generate a custom bookmarklet. Items must be under 100 characters and non-emoji.</p>
+    <textarea id="customList" placeholder="Enter items like: item1   ||   item2   ||   item3"></textarea>
+    <button onclick="generateBookmarklet()">Generate Bookmarklet</button>
+    <div id="customBookmarkletContainer"></div>
+    <p id="errorMessage"></p>
+  </div>
+  
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <p>1. Drag the above links to your browser's bookmarks bar.</p>
+    <p>2. Use "Fetch Emoji Text" to copy non-emoji text from &lt;div data-type="emoji_combo"&gt; elements, or "Emoji Selector" to choose from a predefined list.</p>
+    <p>3. To create a custom bookmarklet, enter a list in the textarea (e.g., "item1   ||   item2"), click "Generate Bookmarklet", and drag the resulting link to your bookmarks.</p>
+    <p>4. If dragging doesn't work, right-click the link, select "Bookmark This Link" (or similar), and save it.</p>
+    <p>Note: Ensure the bookmark URL starts with "javascript:". Edit the bookmark if the prefix is missing.</p>
+  </div>
+
+  <script>
+    function escapeForJS(str) {
+      return str.replace(/\\/g, '\\\\') // Escape backslashes first
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '') // Remove newlines
+                .replace(/\r/g, '') // Remove carriage returns
+                .replace(/\t/g, '\\t'); // Escape tabs
+    }
+
+    function generateBookmarklet() {
+      const input = document.getElementById('customList').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      const container = document.getElementById('customBookmarkletContainer');
+      errorMessage.style.display = 'none';
+      container.innerHTML = '';
+
+      if (!input) {
+        errorMessage.textContent = 'Error: Please enter a list of items.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      const items = input.split('   ||   ')
+        .map(item => item.trim())
+        .filter(item => item.length > 0 && item.length < 100 && !/\p{Extended_Pictographic}/u.test(item));
+
+      if (items.length === 0) {
+        errorMessage.textContent = 'Error: No valid items found (must be non-emoji and under 100 characters).';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      const itemsArrayString = '[' + items.map(item => `'${escapeForJS(item)}'`).join(',') + ']';
+      const bookmarkletCode = `javascript:(function(){function isEmoji(a){return/\\p{Extended_Pictographic}/u.test(a)}const items=${itemsArrayString};if(document.getElementById('emojiDialog'))return;const dialog=document.createElement('div');dialog.id='emojiDialog';dialog.style.position='fixed';dialog.style.top='50%';dialog.style.left='50%';dialog.style.transform='translate(-50%,-50%)';dialog.style.background='#fff';dialog.style.border='1px solid #000';dialog.style.padding='20px';dialog.style.zIndex='9999';dialog.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';dialog.style.maxWidth='400px';dialog.style.maxHeight='80vh';dialog.style.overflow='auto';dialog.style.fontFamily='Arial,sans-serif';const select=document.createElement('select');select.style.width='100%';select.style.padding='5px';select.style.marginBottom='10px';items.forEach(a=>{const b=document.createElement('option');b.value=a;b.textContent=a;select.appendChild(b);});dialog.appendChild(select);const copyBtn=document.createElement('button');copyBtn.textContent='Copy Selected';copyBtn.style.marginRight='10px';copyBtn.style.padding='5px 10px';copyBtn.style.cursor='pointer';copyBtn.onclick=()=>{const a=select.value;try{const b=document.createElement('textarea');b.value=a;document.body.appendChild(b);b.select();document.execCommand('copy');document.body.removeChild(b);alert('Copied: '+a);}catch(b){alert('Copy failed. Copy manually: '+a);}};const closeBtn=document.createElement('button');closeBtn.textContent='Close';closeBtn.style.padding='5px 10px';closeBtn.style.cursor='pointer';closeBtn.onclick=()=>{document.body.removeChild(dialog);};const btnContainer=document.createElement('div');btnContainer.style.textAlign='center';btnContainer.appendChild(copyBtn);btnContainer.appendChild(closeBtn);dialog.appendChild(btnContainer);document.body.appendChild(dialog);dialog.onclick=a=>a.target===dialog&&document.body.removeChild(dialog);})();`;
+
+      const link = document.createElement('a');
+      link.className = 'bookmarklet';
+      link.href = bookmarkletCode;
+      link.textContent = 'Custom Emoji Selector';
+      container.appendChild(link);
+      container.innerHTML += '<p>Drag the above link to your bookmarks bar. Opens a dialog with your custom list for selection and copying.</p>';
+    }
+  </script>
+</body>
+</html>
